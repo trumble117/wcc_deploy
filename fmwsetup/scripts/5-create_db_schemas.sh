@@ -12,6 +12,6 @@
 
 echo "> Begin schema creation"
 
-$STAGE_DIR/RCU_11118/rcuHome/bin/rcu -silent -createRepository -connectString $DB_URL -dbUser sys -dbRole sysdba -schemaPrefix $SCHEMA_PREFIX -component CONTENTSERVER11 -component URM -component CAPTURE -component MDS -f < $RESP_DIR/db_schema_passwords.txt
+$STAGE_DIR/RCU_11118/rcuHome/bin/rcu -silent -createRepository -connectString $DB_URL -dbUser sys -dbRole sysdba -schemaPrefix $SCHEMA_PREFIX -component CONTENTSERVER11 -component URM -component CAPTURE -component MDS -component IPM -f < $RESP_DIR/db_schema_passwords.txt
 
 echo "> Schema creation complete"
