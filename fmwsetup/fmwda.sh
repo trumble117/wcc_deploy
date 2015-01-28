@@ -192,7 +192,7 @@ echo
 echo "Now we need to match the servers to be deployed to the UNIX machine(s)"
 echo
 MACHINE_ASSIGNMENTS="dict("
-MANAGED_SERVERS=(UCM_server1 IBR_server1 URM_server capture_server1)
+MANAGED_SERVERS=(UCM_server1 IBR_server1 URM_server capture_server1 IPM_server1)
 for SERVER in ${MANAGED_SERVERS[*]}; do
 echo "Select a UNIX machine to host $SERVER"
         select MACHINE in ${MACHINE_LIST[*]}; do
