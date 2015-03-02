@@ -2,9 +2,12 @@
 #
 # Johnathon Trumble
 # john.trumble@oracle.com
-# November 5, 2014
+# March 2, 2015
 #
 # FMW Deployment Assistant
+#
+# CHANGELOG
+# 03/02/2015 - Modified to accommodate SOA
 
 [[ ! -e scripts/setScriptEnv.sh ]] && echo "Something's not right, setScriptEnv.sh does not exist in the scripts directory. Exiting..." && exit 2
 
@@ -154,7 +157,7 @@ echo "Backing up old file"
 cp $MEDIA_BASE/responses/db_schema_passwords.txt $MEDIA_BASE/responses/db_schema_passwords.txt-BAK
 echo "Writing passwords to file: $MEDIA_BASE/responses/db_schema_passwords.txt"
 echo $SYS_PW > $MEDIA_BASE/responses/db_schema_passwords.txt
-for i in `seq 1 4`;
+for i in `seq 1 7`;
 do
 	echo $SCHEMA_PW >> $MEDIA_BASE/responses/db_schema_passwords.txt
 done
@@ -192,7 +195,7 @@ echo
 echo "Now we need to match the servers to be deployed to the UNIX machine(s)"
 echo
 MACHINE_ASSIGNMENTS="dict("
-MANAGED_SERVERS=(UCM_server1 IBR_server1 URM_server capture_server1 IPM_server1)
+MANAGED_SERVERS=(UCM_server1 IBR_server1 URM_server capture_server1 IPM_server1 SOA_server1)
 for SERVER in ${MANAGED_SERVERS[*]}; do
 echo "Select a UNIX machine to host $SERVER"
         select MACHINE in ${MACHINE_LIST[*]}; do

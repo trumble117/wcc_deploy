@@ -2,21 +2,30 @@
 # john.trumble@oracle.com
 # November 5, 2014
 #
-# Undo OHS proxy configuration
+# Undo webtier configuration
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
-echo ">> Reverting configuration files"
+# Check environment variables
+if [[ -z $WT_INSTANCE_HOME ]] || [[ ! -d $WT_INSTANCE_HOME ]]; then
+	echo "Please set a valid Web Tier Instance Home directory in your environment"
+	echo "export WT_INSTANCE_HOME=/u01/app/oracle/admin/ohs_instance1"
+	echo
+	echo "Or use the environment setup script provided in this directory"
+	exit 2
+fi
 
-# Revert original config
-cp $WT_INSTANCE_HOME/config/OHS/$OHS_NAME/mod_wl_ohs.conf-BAK $WT_INSTANCE_HOME/config/OHS/$OHS_NAME/mod_wl_ohs.conf
-cp $WT_INSTANCE_HOME/config/OHS/$OHS_NAME/ssl.conf-BAK $WT_INSTANCE_HOME/config/OHS/$OHS_NAME/ssl.conf
+echo ">> Unregister instance from domain"
+$WT_INSTANCE_HOME/bin/opmnctl unregisterinstance
 
-echo ">> Configuration reverted, restarting services..."
-
-# Restart services
-$WT_INSTANCE_HOME/bin/opmnctl stopall
 sleep 5
-$WT_INSTANCE_HOME/bin/opmnctl startall
+echo ">> Delete instance from disk"
+sudo $WT_INSTANCE_HOME/bin/opmnctl deleteinstance
+
+sleep 5
+echo ">> Force remove instance directories from disk"
+rm -rf $WT_INSTANCE_HOME
+
+echo "> WebTier unconfiguration complete"

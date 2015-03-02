@@ -28,14 +28,15 @@ usage(){
 	echo "		 1	-	Install WebLogic Server"
 	echo "		 2	-	Install WebCenter Content"
 	echo "		 3	-	Install Web Tier"
-	echo "		 4	-	Apply FMW oneoff patches"
-	echo "		 5	-	Create FMW DB schemas"
-	echo "		 6	-	Create WebLogic domain"
-	echo "		 7	-	Perform post-domain-config operations"
-	echo "		 8	-	Install wls helper scripts"
-	echo "		 9	-	Configure Web Tier"
-	echo "		10	-	Install OHS configuration"
-	echo "		11	-	Install initial configuration for WCC + IBR"
+	echo " 		 4	-	Install SOA Suite"
+	echo "		 5	-	Apply FMW oneoff patches"
+	echo "		 6	-	Create FMW DB schemas"
+	echo "		 7	-	Create WebLogic domain"
+	echo "		 8	-	Perform post-domain-config operations"
+	echo "		 9	-	Install wls helper scripts"
+	echo "		10	-	Configure Web Tier"
+	echo "		11	-	Install OHS configuration"
+	echo "		12	-	Install initial configuration for WCC + IBR"
 }
 
 [[ -z $1 ]] && usage && exit 2
@@ -53,22 +54,23 @@ elif [[ $FUNC == "-d" ]]; then
 	1) ./1-wls_silent_install.sh;;
 	2) ./2-wcc_silent_install.sh;;
 	3) ./3-wt_silent_install.sh;;
-	4) ./4-fmw_patch.sh;;
-	5) ./5-create_db_schemas.sh;;
-	6) ./6-create_domain.sh;;
-	7) ./7-post_domain_config.sh;;
-	8) ./8-start_script_setup.sh;;
-	9) ./9-webtier_config.sh;;
-	10) ./10-ohs_setup.sh;;
-	11) ./11-wcc_config.sh;;
+	4) ./3-wt_silent_install.sh;;
+	5) ./4-fmw_patch.sh;;
+	6) ./5-create_db_schemas.sh;;
+	7) ./6-create_domain.sh;;
+	8) ./7-post_domain_config.sh;;
+	9) ./8-start_script_setup.sh;;
+	10) ./9-webtier_config.sh;;
+	11) ./10-ohs_setup.sh;;
+	12) ./11-wcc_config.sh;;
 	*) echo "Not a valid step: $STEP"
 	   usage
 	   exit 2;;
 	esac
 elif [[ $FUNC == "-u" ]]; then
 	case $STEP in
-	0|1|2|3|4|5|6|9|10|11) ./$STEP-undo.sh;;
-	7|8) echo "No undo option available for this step";;
+	0|1|2|3|4|5|6|7|10|11|12) ./$STEP-undo.sh;;
+	8|9) echo "No undo option available for this step";;
 	*) echo "Not a valid step: $STEP"
 	   usage
 	   exit 2;;

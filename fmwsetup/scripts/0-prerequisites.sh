@@ -2,9 +2,12 @@
 #
 # Johnathon Trumble
 # john.trumble@oracle.com
-# November 5, 2014
+# March 2, 2015
 #
 # Configure all system prerequisites prior to software installation and configuration
+#
+# CHANGELOG
+# 03/02/2015 - Added SOA, Updated Patch Registry
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
@@ -50,6 +53,11 @@ cd $STAGE_DIR
 unzip -qo ofm_wcc_generic_11.1.1.8.0_disk1_1of2.zip -d WCC
 unzip -qo ofm_wcc_generic_11.1.1.8.0_disk1_2of2.zip -d WCC
 
+# SOA Suite
+[[ ! -d SOA ]] && mkdir SOA
+unzip -qo ofm_soa_generic_11.1.1.7.0_disk1_1of2.zip -d SOA
+unzip -qo ofm_soa_generic_11.1.1.7.0_disk1_2of2.zip -d SOA
+
 # Web Tier
 [[ ! -d WT ]] && mkdir WT
 unzip -qo ofm_webtier_linux_11.1.1.7.0_64_disk1_1of1.zip -d WT
@@ -70,8 +78,8 @@ fi
 
 #PATCH REGISTRY
 #
-# p19182814_1036_Generic.zip - WebLogic Server BP 9 October 2014
+# p19637463_1036_Generic.zip - WebLogic Server BP 10 January 2015 (12UV)
 # p18423831_111170_Linux-x86-64.zip - WebTier July 2014 SPU 
-# p18603703_111170_Linux-x86-64.zip - OHS Plugins (Apache) July 2014
-# p6880880_111000_Linux-x86-64.zip - OPatch July 2014
-# p18836021_111180_Generic.zip - WebCenter Content BP6 July 2014
+# p6880880_111000_Linux-x86-64.zip - OPatch January 2015 (11.1.0.12.5)
+# p20022599_111180_Generic.zip - WebCenter Content BP9 January 2015
+# p19953598_111170_Generic.zip - SOA Suite BP6 January 2015
