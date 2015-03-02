@@ -16,7 +16,7 @@ soa_cluster_name = 'SOA_Cluster'
 # Comma-separate server assignments to clusters
 cluster_assignments = dict(UCM_Cluster='UCM_server1', URM_Cluster='URM_server1', CAP_Cluster='capture_server1', IPM_Cluster='IPM_server1', SOA_Cluster='SOA_server1')
 # Create key:value pairs for servers to be created and the machine on which they will run (correspond to listen addresses)
-machine_assignments = dict(UCM_server1='wccapp2', IBR_server1='wccapp2', URM_server='wccapp2', capture_server1='wccapp2', IPM_server1='wccapp2', SOA_server1='wccapp2')
+machine_assignments = dict(UCM_server1='wccapp2', IBR_server1='wccapp2', URM_server1='wccapp2', capture_server1='wccapp2', IPM_server1='wccapp2', SOA_server1='wccapp2')
 machine_listen_addresses = ['wccapp2']
 db_pw = 'welcome1'
 
