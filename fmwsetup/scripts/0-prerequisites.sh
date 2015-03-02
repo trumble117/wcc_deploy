@@ -66,6 +66,9 @@ unzip -qo ofm_webtier_linux_11.1.1.7.0_64_disk1_1of1.zip -d WT
 [[ ! -d RCU_11118 ]] && mkdir RCU_11118
 unzip -qo ofm_rcu_linux_11.1.1.8.0_64_disk1_1of1 -d RCU_11118
 
+# Test if oinstall exists
+[[ ! $(grep oinstall /etc/group) ]] && sudo groupadd oinstall && sudo usermod -G oinstall oracle
+
 # Create central inventory
 sudo ./WCC/Disk1/stage/Response/createCentralInventory.sh /u01/app/oraInventory oinstall
 
