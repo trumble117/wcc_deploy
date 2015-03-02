@@ -96,12 +96,12 @@ sed -i "s|FMW_HOME=.*|FMW_HOME=$FMW_HOME|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|DOMAIN_BASE=.*|DOMAIN_BASE=$DOMAIN_BASE|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|DOMAIN_NAME=.*|DOMAIN_NAME=$DOMAIN_NAME|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|JAVA_HOME=.*|JAVA_HOME=$JAVA_HOME|g" $MEDIA_BASE/scripts/setScriptEnv.sh
-sed -i "s|MEDIA_BASE=.*|MEDIA_BASE=${MEDIA_BASE}|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|MEDIA_BASE=.*|MEDIA_BASE=$MEDIA_BASE|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|ADMIN_SERVER_HOST=.*|ADMIN_SERVER_HOST=$ADMIN_SERVER_HOST|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|OHS_INSTANCE_NAME=.*|OHS_INSTANCE_NAME=$OHS_INSTANCE_NAME|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|OHS_NAME=.*|OHS_NAME=$OHS_NAME|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|NM_PORT=.*|NM_PORT=$NM_PORT|g" $MEDIA_BASE/scripts/setScriptEnv.sh
-sed -i "s|DB_URL=.*|DB_URL=${DB_URL}|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|DB_URL=.*|DB_URL=$DB_URL|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|SCHEMA_PREFIX=.*|SCHEMA_PREFIX=$SCHEMA_PREFIX|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|ADMIN_PW=.*|ADMIN_PW=$ADMIN_PW|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 
@@ -218,6 +218,22 @@ sed -i "s|machine_listen_addresses =.*|machine_listen_addresses = $MACHINE_ADDRE
 sed -i "s|machine_assignments =.*|machine_assignments = $MACHINE_ASSIGNMENTS|g" $MEDIA_BASE/responses/domain_create.py
 sed -i "s|db_pw =.*|db_pw = '$SCHEMA_PW'|g" $MEDIA_BASE/responses/domain_create.py
 sed -i "s|UCM_HOST=.*|UCM_HOST=$UCM_HOST|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+
+WT_INSTANCE_HOME=$DOMAIN_BASE/$OHS_INSTANCE_NAME
+ECM_HOME=$FMW_HOME/Oracle_ECM1
+SOA_HOME=$FMW_HOME/Oracle_SOA1
+WT_HOME=$FMW_HOME/Oracle_WT1
+
+sed -i "s|.*BEAHOME.*|       \<data-value name=\"BEAHOME\" value=\"$FMW_HOME\" \/\>|g" responses/wls_silent.xml
+sed -i "s|.*WLS_INSTALL_DIR.*|       \<data-value name=\"WLS_INSTALL_DIR\" value=\"$FMW_HOME\/wlserver_10.3\" \/\>|g" responses/wls_silent.xml
+sed -i "s|.*OCM_INSTALL_DIR.*|       \<data-value name=\"OCM_INSTALL_DIR\" value=\"$FMW_HOME\/coherence_3.7\" \/\>|g" responses/wls_silent.xml
+sed -i "s|.*LOCAL_JVMS.*|       \<data-value name=\"LOCAL_JVMS\" value=\"$FMW_HOME\/coherence_3.7\" \/\>|g" responses/wls_silent.xml
+sed -i "s|MIDDLEWARE_HOME.*|MIDDLEWARE_HOME=$FMW_HOME|g" responses/*.rsp
+sed -i "s|APPSERVER_HOME.*|APPSERVER_HOME=$FMW_HOME|g" responses/*.rsp
+sed -i "s|ORACLE_HOME.*|ORACLE_HOME=$ECM_HOME|g" responses/install_wcc.rsp
+sed -i "s|ORACLE_HOME.*|ORACLE_HOME=$SOA_HOME|g" responses/install_soa.rsp
+sed -i "s|ORACLE_HOME.*|ORACLE_HOME=$WT_HOME|g" responses/install_wt.rsp
+sed -i "s|INSTANCE_HOME.*|INSTANCE_HOME=$WT_INSTANCE_HOME|g" responses/config_ohs.rsp
 
 echo
 echo "Ready to go!"

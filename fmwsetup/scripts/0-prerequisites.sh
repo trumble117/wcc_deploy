@@ -31,11 +31,20 @@ fi
 [[ -a SUDOtest ]] && rm -f SUDOtest
 [[ -a fixSudo.sh ]] && rm -f fixSudo.sh
 
+# Test if oinstall exists - add oracle to it
+[[ ! $(grep oinstall /etc/group) ]] && sudo groupadd oinstall
+if [[ ! $(groups | grep oinstall) ]]; then
+	sudo usermod -a -G oinstall oracle
+	echo "WARNING: You must now log out and back in to refresh user group membership before proceeding!"
+	exit 1
+fi
+echo "> The group 'oinstall' exists and user 'oracle' is a member"
 
 # Ensure required packages are installed
 sudo yum clean all
 sudo yum install -y $(cat $RESP_DIR/linux_required_packages.txt)
 
+echo "> Creating domain folder resources on disk"
 sudo mkdir -p $FMW_HOME
 sudo mkdir -p $DOMAIN_BASE
 sudo chown oracle:oinstall -R $DOMAIN_BASE/../../
@@ -45,7 +54,7 @@ export PATH=$PATH:$JAVA_HOME/bin
 
 chmod a+x $STAGE_DIR/wls1036_generic.jar
 
-echo "Unzipping installer binaries. This can take a while..."
+echo "> Unzipping installer binaries. This can take a while..."
 ## Stage install files
 cd $STAGE_DIR
 # WebCenter Content
@@ -69,13 +78,6 @@ unzip -qo ofm_webtier_linux_11.1.1.7.0_64_disk1_1of1.zip -d WT
 [[ ! -d RCU_11118 ]] && mkdir RCU_11118 && echo "> Successfully created RCU directory"
 echo ">> Unzip RCU"
 unzip -qo ofm_rcu_linux_11.1.1.8.0_64_disk1_1of1 -d RCU_11118
-
-# Test if oinstall exists - add oracle to it
-[[ ! $(grep oinstall /etc/group) ]] && sudo groupadd oinstall
-if [[ ! $(groups | grep oinstall) ]]; then
-	sudo usermod -a -G oinstall oracle
-	echo "WARNING: You must now log out and back in to refresh user group membership before proceeding!"
-fi
 
 # Create central inventory
 sudo ./WCC/Disk1/stage/Response/createCentralInventory.sh /u01/app/oraInventory oinstall
