@@ -49,25 +49,33 @@ echo "Unzipping installer binaries. This can take a while..."
 ## Stage install files
 cd $STAGE_DIR
 # WebCenter Content
-[[ ! -d WCC ]] && mkdir WCC
+[[ ! -d WCC ]] && mkdir WCC && echo "> Successfully created WCC directory"
+echo ">> Unzip WCC binaries"
 unzip -qo ofm_wcc_generic_11.1.1.8.0_disk1_1of2.zip -d WCC
 unzip -qo ofm_wcc_generic_11.1.1.8.0_disk1_2of2.zip -d WCC
 
 # SOA Suite
-[[ ! -d SOA ]] && mkdir SOA
+[[ ! -d SOA ]] && mkdir SOA && echo "> Successfully created SOA directory"
+echo ">> Unzip SOA binaries"
 unzip -qo ofm_soa_generic_11.1.1.7.0_disk1_1of2.zip -d SOA
 unzip -qo ofm_soa_generic_11.1.1.7.0_disk1_2of2.zip -d SOA
 
 # Web Tier
-[[ ! -d WT ]] && mkdir WT
+[[ ! -d WT ]] && mkdir WT && echo "> Successfully created WT directory"
+echo ">> Unzip WT binaries"
 unzip -qo ofm_webtier_linux_11.1.1.7.0_64_disk1_1of1.zip -d WT
 
 # RCU 11.1.1.8
-[[ ! -d RCU_11118 ]] && mkdir RCU_11118
+[[ ! -d RCU_11118 ]] && mkdir RCU_11118 && echo "> Successfully created RCU directory"
+echo ">> Unzip RCU"
 unzip -qo ofm_rcu_linux_11.1.1.8.0_64_disk1_1of1 -d RCU_11118
 
-# Test if oinstall exists
-[[ ! $(grep oinstall /etc/group) ]] && sudo groupadd oinstall && sudo usermod -G oinstall oracle
+# Test if oinstall exists - add oracle to it
+[[ ! $(grep oinstall /etc/group) ]] && sudo groupadd oinstall
+if [[ ! $(groups | grep oinstall) ]]; then
+	sudo usermod -a -G oinstall oracle
+	echo "WARNING: You must now log out and back in to refresh user group membership before proceeding!"
+fi
 
 # Create central inventory
 sudo ./WCC/Disk1/stage/Response/createCentralInventory.sh /u01/app/oraInventory oinstall
