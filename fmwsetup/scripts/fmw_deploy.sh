@@ -54,15 +54,15 @@ elif [[ $FUNC == "-d" ]]; then
 	1) ./1-wls_silent_install.sh;;
 	2) ./2-wcc_silent_install.sh;;
 	3) ./3-wt_silent_install.sh;;
-	4) ./3-wt_silent_install.sh;;
-	5) ./4-fmw_patch.sh;;
-	6) ./5-create_db_schemas.sh;;
-	7) ./6-create_domain.sh;;
-	8) ./7-post_domain_config.sh;;
-	9) ./8-start_script_setup.sh;;
-	10) ./9-webtier_config.sh;;
-	11) ./10-ohs_setup.sh;;
-	12) ./11-wcc_config.sh;;
+	4) ./4-soa_silent_install.sh;;
+	5) ./5-fmw_patch.sh;;
+	6) ./6-create_db_schemas.sh;;
+	7) ./7-create_domain.sh;;
+	8) ./8-post_domain_config.sh;;
+	9) ./9-start_script_setup.sh;;
+	10) ./10-webtier_config.sh;;
+	11) ./11-ohs_setup.sh;;
+	12) ./12-wcc_config.sh;;
 	*) echo "Not a valid step: $STEP"
 	   usage
 	   exit 2;;

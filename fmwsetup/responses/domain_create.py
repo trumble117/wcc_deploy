@@ -14,15 +14,15 @@ ucm_cluster_name = 'UCM_Cluster' 		# Used for XDO assignment later
 ipm_cluster_name = 'IPM_Cluster'
 soa_cluster_name = 'SOA_Cluster'
 # Comma-separate server assignments to clusters
-cluster_assignments = dict(UCM_Cluster='UCM_server1', URM_Cluster='URM_server1', CAP_Cluster='capture_server1', IPM_Cluster='IPM_server1', SOA_Cluster='SOA_server1')
+cluster_assignments = dict(UCM_Cluster='UCM_server1', URM_Cluster='URM_server1', CAP_Cluster='capture_server1', IPM_Cluster='IPM_server1', SOA_Cluster='soa_server1')
 # Create key:value pairs for servers to be created and the machine on which they will run (correspond to listen addresses)
-machine_assignments = dict(UCM_server1='wccapp2', IBR_server1='wccapp2', URM_server1='wccapp2', capture_server1='wccapp2', IPM_server1='wccapp2', SOA_server1='wccapp2')
+machine_assignments = dict(UCM_server1='wccapp2', IBR_server1='wccapp2', URM_server1='wccapp2', capture_server1='wccapp2', IPM_server1='wccapp2', soa_server1='wccapp2')
 machine_listen_addresses = ['wccapp2']
 db_pw = 'welcome1'
 
 # Templates
 ucm_template_list = ['oracle.ucm.core_template_11.1.1.jar','oracle.ucm.cs_template_11.1.1.jar','oracle.ucm.ibr_template_11.1.1.jar','oracle.ucm.urm_template_11.1.1.jar','oracle.capture_template_11.1.1.jar']
-soa_template_list = ['oracle.soa_11.1.1_template.jar', 'oracle.ums.soa_group_11.1.1.xml']
+soa_template_list = ['oracle.soa_template_11.1.1.jar']
 
 # Grab environment variables
 app_dir = os.getenv('DOMAIN_BASE') + '/' + os.getenv('DOMAIN_NAME') + '/aserver/applications'
@@ -31,7 +31,7 @@ nm_listen_port = os.getenv('NM_PORT')
 domain_home = os.getenv('DOMAIN_HOME')
 domain_name = os.getenv('DOMAIN_NAME')
 ucm_templates = os.getenv('ECM_HOME') + '/common/templates/applications/'
-ucm_templates = os.getenv('FMW_HOME') + 'oracle_common/common/templates/applications/'
+soa_templates = os.getenv('SOA_HOME') + '/common/templates/applications/'
 wls_template = os.getenv('WL_HOME') + '/common/templates/domains/wls.jar'
 admin_pw = os.getenv('ADMIN_PW')
 # DB variables
@@ -112,6 +112,9 @@ for template in ucm_template_list:
 for template in soa_template_list:
 	print '>> Adding template: ' + soa_templates + template
 	addTemplate(soa_templates + template)
+	
+print '>> Setting application directory: ' + app_dir
+setOption('AppDir', app_dir)
 	
 # Create clusters
 print '>>> Create clusters and assign servers'
