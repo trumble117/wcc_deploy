@@ -2,14 +2,17 @@
 #
 # Johnathon Trumble
 # john.trumble@oracle.com
-# December 16, 2014
+# March 18, 2015
+#
+# CHANGELOG
+# 03/18/2015 - Fixed admin URL to proper format
 
 import os
 
 admin_server = os.getenv('ADMIN_SERVER_HOST')
 admin_pw = os.getenv('ADMIN_PW')
 
-connect('weblogic',admin_pw,admin_server)
+connect('weblogic',admin_pw,'t3://' + admin_server + ':7001')
 edit()
 startEdit()
 print '>> Disabling hostname verification on servers (Re-enable after certificate setup)'

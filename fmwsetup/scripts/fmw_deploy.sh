@@ -32,8 +32,8 @@ usage(){
 	echo "		 5	-	Apply FMW oneoff patches"
 	echo "		 6	-	Create FMW DB schemas"
 	echo "		 7	-	Create WebLogic domain"
-	echo "		 8	-	Perform post-domain-config operations"
-	echo "		 9	-	Install wls helper scripts"
+	echo "		 8	-	Install wls helper scripts"
+	echo "		 9	-	Perform post-domain-config operations"
 	echo "		10	-	Configure Web Tier"
 	echo "		11	-	Install OHS configuration"
 	echo "		12	-	Install initial configuration for WCC + IBR"
@@ -58,8 +58,8 @@ elif [[ $FUNC == "-d" ]]; then
 	5) ./5-fmw_patch.sh;;
 	6) ./6-create_db_schemas.sh;;
 	7) ./7-create_domain.sh;;
-	8) ./8-post_domain_config.sh;;
-	9) ./9-start_script_setup.sh;;
+	8) ./8-start_script_setup.sh;;
+	9) ./9-post_domain_config.sh;;
 	10) ./10-webtier_config.sh;;
 	11) ./11-ohs_setup.sh;;
 	12) ./12-wcc_config.sh;;

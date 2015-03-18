@@ -2,9 +2,12 @@
 #
 # Johnathon Trumble
 # john.trumble@oracle.com
-# November 5, 2014
+# March 18, 2015
 #
 # Post-domain-extension configuration script
+#
+# CHANGELOG
+# 03/18/2015 - Tweaked logic to determine if AdminServer is running
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
@@ -102,7 +105,7 @@ echo ">> Performing a pack/unpack..."
 punpack
 
 # Disable hostname verification
-ADM_PID=$(ps -ef | grep AdminServer | grep -v grep | awk '{print $2}')
+ADM_PID=$(ps -ef | grep weblogic.Name=AdminServer | grep -v grep | awk '{print $2}')
 if [[ ! $ADM_PID ]]; then
         echo "[WARNING] AdminServer must be running. Starting up..."
         . ~/.bash_profile

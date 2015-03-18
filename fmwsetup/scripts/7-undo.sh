@@ -2,9 +2,12 @@
 #
 # Johnathon Trumble
 # john.trumble@oracle.com
-# November 5, 2014
+# March 18, 2015
 #
-# Back out domain creation from step 6
+# Back out domain creation
+#
+# CHANGELOG
+# 03/18/2015 - Added sudo to domain deletion for root owned files
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
@@ -27,6 +30,6 @@ sed -i "/$DOMAIN_NAME/d" $FMW_HOME/wlserver_10.3/common/nodemanager/nodemanager.
 
 # Delete the domain directory
 echo ">> Deleting domain from disk"
-rm -rf $DOMAIN_BASE
+sudo rm -rf $DOMAIN_BASE
 
 echo "> Domain delete complete"

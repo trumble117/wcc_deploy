@@ -11,6 +11,7 @@ FMW_HOME=/u01/app/oracle/product/fmw
 DOMAIN_BASE=/u01/app/oracle/admin
 DOMAIN_NAME=wcc_domain
 JAVA_HOME=/usr/java/latest
+JAVA_VENDOR=Sun
 # Contains extracted AUTO archive (scripts, responses, etc.) and software stage
 MEDIA_BASE=/tmp/fmwsetup
 ADMIN_PW=welcome1
@@ -26,7 +27,7 @@ NM_PORT=5556
 DB_URL=jdbc:oracle:thin:@bebop-db.trumble.home:1521/bebopdb
 SCHEMA_PREFIX=DEV
 
-export FMW_HOME DOMAIN_BASE DOMAIN_NAME JAVA_HOME MEDIA_BASE ADMIN_SERVER_HOST OHS_INSTANCE_NAME OHS_NAME NM_PORT DB_URL SCHEMA_PREFIX ADMIN_PW UCM_HOST
+export FMW_HOME DOMAIN_BASE DOMAIN_NAME JAVA_HOME JAVA_VENDOR MEDIA_BASE ADMIN_SERVER_HOST OHS_INSTANCE_NAME OHS_NAME NM_PORT DB_URL SCHEMA_PREFIX ADMIN_PW UCM_HOST
 
 # Derived variables
 # FMW

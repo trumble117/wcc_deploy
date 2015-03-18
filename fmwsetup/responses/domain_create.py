@@ -2,10 +2,10 @@
 #
 # Johnathon Trumble
 # john.trumble@oracle.com
-# November 5, 2014
+# March 18, 2015
 #
-# TODO: Make a configurator for this file
-#		Make the db_pw a dictionary so that datasources can have different passwords
+# CHANGELOG
+# 03/18/2015 - Added SOA resources
 
 import os, sys
 
