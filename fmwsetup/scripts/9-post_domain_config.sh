@@ -8,12 +8,16 @@
 #
 # CHANGELOG
 # 03/18/2015 - Tweaked logic to determine if AdminServer is running
+# 03/19/2014 - Added JOC configuration
+#			   Added logging configuration update
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 NM_START_TIMEOUT=120
+SOA_CLUSTER="SOA_Cluster"
+SOA_DISCOVER_PORT="9998"
 
 usage(){
 	echo "~*~* Run as the oracle install user _after_ creating/extending the domain *~*~"
@@ -116,6 +120,34 @@ fi
 cd $FMW_HOME/oracle_common/common/bin/
 ./wlst.sh $RESP_DIR/disable_hostname_verification.py
 ./wlst.sh $RESP_DIR/update_logging.py
+./wlst.sh $RESP_DIR/configure_tlogs.py
+
+# Configure JOC using expect
+/usr/bin/expect << EOD
+set timeout -1
+
+spawn $FMW_HOME/oracle_common/common/bin/wlst.sh
+expect "wls:/offline> "
+send "connect('weblogic','$ADMIN_PW','t3://$ADMIN_SERVER_HOST:7001')\r"
+expect "*serverConfig> "
+send "execfile('$FMW_HOME/oracle_common/bin/configure-joc.py')\r"
+expect "Enter Hostnames*"
+send "$SOA_HOSTS\r"
+expect "Do you want to specify a cluster name*"
+send "y\r"
+expect "Enter Cluster Name*"
+send "$SOA_CLUSTER\r"
+expect "Enter Discover Port*"
+send "$SOA_DISCOVER_PORT\r"
+expect "Enter Distribute Mode*"
+send "true\r"
+expect "Do you want to exclude any server*"
+send "n\r"
+expect "wls:*> "
+send "exit()\r"
+
+expect eof
+EOD
 
 # Shut down AdminServer
 python ~/wls_scripts/servercontrol.py --stop=admin

@@ -8,6 +8,7 @@
 # 03/18/2015 - Added SOA resources
 # 03/19/2015 - Added functionality to edit server names
 # 			   to make them more consistent
+#			   Added variable-based start mode
 
 import os, sys
 
@@ -22,6 +23,7 @@ machine_assignments = dict(FMW_UCM1='wccapp2', FMW_IBR1='wccapp2', FMW_URM1='wcc
 new_server_names = dict(UCM_server1='FMW_UCM1', IBR_server1='FMW_IBR1', URM_server1='FMW_URM1', capture_server1='FMW_CAP1', IPM_server1='FMW_IPM1', soa_server1='FMW_SOA1')
 machine_listen_addresses = ['wccapp2']
 db_pw = 'welcome1'
+start_mode = 'dev'
 
 # Templates
 ucm_template_list = ['oracle.ucm.core_template_11.1.1.jar','oracle.ucm.cs_template_11.1.1.jar','oracle.ucm.ibr_template_11.1.1.jar','oracle.ucm.urm_template_11.1.1.jar','oracle.capture_template_11.1.1.jar','oracle.ipm_template_11.1.1.jar']
@@ -37,6 +39,7 @@ ucm_templates = os.getenv('ECM_HOME') + '/common/templates/applications/'
 soa_templates = os.getenv('SOA_HOME') + '/common/templates/applications/'
 wls_template = os.getenv('WL_HOME') + '/common/templates/domains/wls.jar'
 admin_pw = os.getenv('ADMIN_PW')
+frontend_host = os.getenv('LOAD_BAL_ADDR')
 # DB variables
 db_url = os.getenv('DB_URL')
 db_prefix = os.getenv('SCHEMA_PREFIX') + '_'
@@ -100,7 +103,7 @@ setOption('AppDir', app_dir)
 setOption('DomainName', domain_name)
 setOption('OverwriteDomain', 'true')
 setOption('JavaHome', java_home)
-setOption('ServerStartMode', 'dev')
+setOption('ServerStartMode', start_mode)
 print '>>> Set weblogic user credentials'
 cd('/Security/base_domain/User/weblogic')
 cmo.setPassword(admin_pw)
@@ -153,6 +156,32 @@ print '>> Updating Library assignments'
 # Change XDO target to include UCM Cluster
 assign('Library', 'oracle.xdo.runtime#1@11.1.1.3.0', 'Target', ucm_cluster_name)
 assign('Library', 'oracle.soa.workflow.wc#11.1.1@11.1.1', 'Target', ipm_cluster_name + ',' + soa_cluster_name)
+assign('AppDeployment', 'wsm-pm', 'Target', soa_cluster_name)
+#assign('AppDeployment', 'NonJ2EEManagement#11.1.1', 'Target', 'AdminServer')
+
+soa_only_libraries = [\
+'oracle.soa.worklist.webapp#11.1.1@11.1.1',\
+'oracle.rules#11.1.1@11.1.1',\
+'oracle.sdp.client#11.1.1@11.1.1',\
+'oracle.soa.rules_editor_dc.webapp#11.1.1@11.1.1',\
+'oracle.soa.rules_dict_dc.webapp#11.1.1@11.1.1',\
+'oracle.sdp.messaging#11.1.1@11.1.1',\
+'oracle.soa.worklist#11.1.1@11.1.1',\
+'oracle.soa.bpel#11.1.1@11.1.1',\
+'oracle.soa.workflow#11.1.1@11.1.1',\
+'oracle.soa.mediator#11.1.1@11.1.1',\
+'oracle.soa.composer.webapp#11.1.1@11.1.1',\
+'oracle.soa.ext#11.1.1@11.1.1']
+
+for lib in soa_only_libraries:
+	assign('Library', lib, 'Target', soa_cluster_name)
+
+print '>> Updating JMS filestore locations'
+cd ('/')
+filestores = cmo.getFileStores()
+for store in filestores:
+	name = store.getName()
+	store.setDirectory(os.getenv('DOMAIN_BASE') + '/' + os.getenv('DOMAIN_NAME') + '/' + name)
 
 print '>> Enabling WebLogic Plug-in on servers'
 cd('/')
@@ -161,6 +190,16 @@ for server in servers:
 	serverName=str(server.getName())
 	cd('/Servers/' + serverName)
 	cmo.setWeblogicPluginEnabled(java.lang.Boolean('true'))
+
+cd('/')
+print '>> Setting front end HTTP attributes'
+clusters = cmo.getClusters()
+for cluster in clusters:
+	clusterName=str(cluster.getName())
+	cd('/Clusters/' + clusterName)
+	set('FrontendHost', frontend_host)
+	set('FrontendHTTPPort', 80)
+	set('FrontendHTTPSPort', 443)
 
 print '<< Writing updated domain to disk'
 updateDomain()

@@ -9,6 +9,7 @@
 # CHANGELOG
 # 03/02/2015 - Modified to accommodate SOA
 # 03/19/2015 - Edited to reflect new machine names
+#			   Added option for start mode
 
 [[ ! -e scripts/setScriptEnv.sh ]] && echo "Something's not right, setScriptEnv.sh does not exist in the scripts directory. Exiting..." && exit 2
 
@@ -63,10 +64,20 @@ while [[ $PASSWORDS_MATCH == 0 ]]; do
 done
 echo
 
+echo "Select a start mode for the domain:"
+select START_MODE in dev prod; do
+        echo "Mode '$START_MODE' has been selected"
+        break
+done
+
 # Instance Variables
 echo "What is the hostname where your AdminServer will run? [$(hostname)]"
 read ADMIN_SERVER_HOST
 [[ -z $ADMIN_SERVER_HOST ]] && ADMIN_SERVER_HOST=$(hostname)
+
+echo "Enter the load balancer or front-end HTTP address [$ADMIN_SERVER_HOST]"
+read LOAD_BAL_ADDR
+[[ -z $LOAD_BAL_ADDR ]] && LOAD_BAL_ADDR=$ADMIN_SERVER_HOST
 
 echo "What will be the name of your WebTier instance? [ohs_instance1]"
 read OHS_INSTANCE_NAME
@@ -99,6 +110,7 @@ sed -i "s|DOMAIN_NAME=.*|DOMAIN_NAME=$DOMAIN_NAME|g" $MEDIA_BASE/scripts/setScri
 sed -i "s|JAVA_HOME=.*|JAVA_HOME=$JAVA_HOME|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|MEDIA_BASE=.*|MEDIA_BASE=$MEDIA_BASE|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|ADMIN_SERVER_HOST=.*|ADMIN_SERVER_HOST=$ADMIN_SERVER_HOST|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|LOAD_BAL_ADDR=.*|LOAD_BAL_ADDR=$LOAD_BAL_ADDR|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|OHS_INSTANCE_NAME=.*|OHS_INSTANCE_NAME=$OHS_INSTANCE_NAME|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|OHS_NAME=.*|OHS_NAME=$OHS_NAME|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|NM_PORT=.*|NM_PORT=$NM_PORT|g" $MEDIA_BASE/scripts/setScriptEnv.sh
@@ -201,7 +213,14 @@ for SERVER in ${MANAGED_SERVERS[*]}; do
 echo "Select a UNIX machine to host $SERVER"
         select MACHINE in ${MACHINE_LIST[*]}; do
 				MACHINE_ASSIGNMENTS="$MACHINE_ASSIGNMENTS$SERVER='$MACHINE'"
-				[[ $SERVER == "UCM_server1" ]] && UCM_HOST=$MACHINE
+				[[ $SERVER == "FMW_UCM1" ]] && UCM_HOST=$MACHINE
+				if [[ $SERVER == *"SOA"* ]]; then
+					if [[ -z $SOA_HOSTS ]]; then
+						SOA_HOSTS=$MACHINE
+					elif [[ -n $SOA_HOSTS ]]; then
+						SOA_HOSTS=$SOA_HOSTS,$MACHINE
+					fi
+				fi
                 break
         done
         if [[ $SERVER != ${MANAGED_SERVERS[${#MANAGED_SERVERS[@]} - 1]} ]]; then
@@ -219,6 +238,8 @@ sed -i "s|machine_listen_addresses =.*|machine_listen_addresses = $MACHINE_ADDRE
 sed -i "s|machine_assignments =.*|machine_assignments = $MACHINE_ASSIGNMENTS|g" $MEDIA_BASE/responses/domain_create.py
 sed -i "s|db_pw =.*|db_pw = '$SCHEMA_PW'|g" $MEDIA_BASE/responses/domain_create.py
 sed -i "s|UCM_HOST=.*|UCM_HOST=$UCM_HOST|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|SOA_HOSTS=.*|SOA_HOSTS=$SOA_HOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|start_mode =.*|start_mode = '$START_MODE'|g" $MEDIA_BASE/responses/domain_create.py
 
 WT_INSTANCE_HOME=$DOMAIN_BASE/$OHS_INSTANCE_NAME
 ECM_HOME=$FMW_HOME/Oracle_ECM1

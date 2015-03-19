@@ -17,7 +17,7 @@ cat << EOF > $MSERVER_HOME/ucm/cs/bin/autoinstall.cfg
 IDC_Name=$UCMIDC
 IDC_ID=UCM_server1
 InstanceMenuLabel=$SCHEMA_PREFIX WCC
-InstanceDescription=$SCHEMA_PREFIX WebCenter Content Demo
+InstanceDescription=$SCHEMA_PREFIX WebCenter Content Instance
 AutoInstallComplete=true
 AutoNumberPrefix=$DOCPREFIX
 IsAutoNumber=1
@@ -43,7 +43,7 @@ cat << EOF > $MSERVER_HOME/ucm/ibr/bin/autoinstall.cfg
 IDC_ID=IBR_server1
 IDC_Name=$IBRIDC
 InstanceMenuLabel=$SCHEMA_PREFIX IBR
-InstanceDescription=$SCHEMA_PREFIX Content Demo IBR Instance
+InstanceDescription=$SCHEMA_PREFIX Content IBR Instance
 AutoInstallComplete=true
 SocketHostAddressSecurityFilter=127.0.0.1|*.*.*.*
 HttpServerAddress=$UCM_HOST
