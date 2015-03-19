@@ -115,6 +115,7 @@ fi
 
 cd $FMW_HOME/oracle_common/common/bin/
 ./wlst.sh $RESP_DIR/disable_hostname_verification.py
+./wlst.sh $RESP_DIR/update_logging.py
 
 # Shut down AdminServer
 python ~/wls_scripts/servercontrol.py --stop=admin

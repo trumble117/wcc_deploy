@@ -6,6 +6,8 @@
 #
 # CHANGELOG
 # 03/18/2015 - Added SOA resources
+# 03/19/2015 - Added functionality to edit server names
+# 			   to make them more consistent
 
 import os, sys
 
@@ -14,14 +16,15 @@ ucm_cluster_name = 'UCM_Cluster' 		# Used for XDO assignment later
 ipm_cluster_name = 'IPM_Cluster'
 soa_cluster_name = 'SOA_Cluster'
 # Comma-separate server assignments to clusters
-cluster_assignments = dict(UCM_Cluster='UCM_server1', URM_Cluster='URM_server1', CAP_Cluster='capture_server1', IPM_Cluster='IPM_server1', SOA_Cluster='soa_server1')
+cluster_assignments = dict(UCM_Cluster='FMW_UCM1', URM_Cluster='FMW_URM1', CAP_Cluster='FMW_CAP1', IPM_Cluster='FMW_IPM1', SOA_Cluster='FMW_SOA1')
 # Create key:value pairs for servers to be created and the machine on which they will run (correspond to listen addresses)
-machine_assignments = dict(UCM_server1='wccapp2', IBR_server1='wccapp2', URM_server1='wccapp2', capture_server1='wccapp2', IPM_server1='wccapp2', soa_server1='wccapp2')
+machine_assignments = dict(FMW_UCM1='wccapp2', FMW_IBR1='wccapp2', FMW_URM1='wccapp2', FMW_CAP1='wccapp2', FMW_IPM1='wccapp2', FMW_SOA1='wccapp2')
+new_server_names = dict(UCM_server1='FMW_UCM1', IBR_server1='FMW_IBR1', URM_server1='FMW_URM1', capture_server1='FMW_CAP1', IPM_server1='FMW_IPM1', soa_server1='FMW_SOA1')
 machine_listen_addresses = ['wccapp2']
 db_pw = 'welcome1'
 
 # Templates
-ucm_template_list = ['oracle.ucm.core_template_11.1.1.jar','oracle.ucm.cs_template_11.1.1.jar','oracle.ucm.ibr_template_11.1.1.jar','oracle.ucm.urm_template_11.1.1.jar','oracle.capture_template_11.1.1.jar']
+ucm_template_list = ['oracle.ucm.core_template_11.1.1.jar','oracle.ucm.cs_template_11.1.1.jar','oracle.ucm.ibr_template_11.1.1.jar','oracle.ucm.urm_template_11.1.1.jar','oracle.capture_template_11.1.1.jar','oracle.ipm_template_11.1.1.jar']
 soa_template_list = ['oracle.soa_template_11.1.1.jar']
 
 # Grab environment variables
@@ -83,7 +86,12 @@ def configure_datasource(jdbc_name):
 	curValue = cmo.getValue()
 	newValue = curValue.replace('DEV_', db_prefix)
 	cmo.setValue(newValue)
-	
+
+def update_server_name(old_name, new_name):
+	print '>>> Changing ' + old_name + ' to ' + new_name
+	cd('/Server/' + old_name)
+	cmo.setName(new_name)
+
 # DEPLOY
 # WebLogic Server Base
 print '>> Read template: ' + wls_template
@@ -115,6 +123,11 @@ for template in soa_template_list:
 	
 print '>> Setting application directory: ' + app_dir
 setOption('AppDir', app_dir)
+
+# Change server names
+print '>> Update server names'
+for old, new in new_server_names.items():
+	update_server_name(old,new)
 	
 # Create clusters
 print '>>> Create clusters and assign servers'

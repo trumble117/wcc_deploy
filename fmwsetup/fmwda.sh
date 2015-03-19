@@ -8,6 +8,7 @@
 #
 # CHANGELOG
 # 03/02/2015 - Modified to accommodate SOA
+# 03/19/2015 - Edited to reflect new machine names
 
 [[ ! -e scripts/setScriptEnv.sh ]] && echo "Something's not right, setScriptEnv.sh does not exist in the scripts directory. Exiting..." && exit 2
 
@@ -195,7 +196,7 @@ echo
 echo "Now we need to match the servers to be deployed to the UNIX machine(s)"
 echo
 MACHINE_ASSIGNMENTS="dict("
-MANAGED_SERVERS=(UCM_server1 IBR_server1 URM_server1 capture_server1 IPM_server1 soa_server1)
+MANAGED_SERVERS=(FMW_UCM1 FMW_IBR1 FMW_URM1 FMW_CAP1 FMW_IPM1 FMW_SOA1)
 for SERVER in ${MANAGED_SERVERS[*]}; do
 echo "Select a UNIX machine to host $SERVER"
         select MACHINE in ${MACHINE_LIST[*]}; do
