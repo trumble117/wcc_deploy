@@ -8,8 +8,9 @@
 #
 # CHANGELOG
 # 03/18/2015 - Tweaked logic to determine if AdminServer is running
-# 03/19/2014 - Added JOC configuration
+# 03/19/2015 - Added JOC configuration
 #			   Added logging configuration update
+# 03/23/2015 - Added NodeManager startup
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
