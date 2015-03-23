@@ -77,7 +77,7 @@ unzip -qo ofm_webtier_linux_11.1.1.7.0_64_disk1_1of1.zip -d WT
 # RCU 11.1.1.8
 [[ ! -d RCU_11118 ]] && mkdir RCU_11118 && echo "> Successfully created RCU directory"
 echo ">> Unzip RCU"
-unzip -qo ofm_rcu_linux_11.1.1.8.0_64_disk1_1of1 -d RCU_11118
+unzip -qo ofm_rcu_linux_11.1.1.8.0_64_disk1_1of1.zip -d RCU_11118
 
 # Create central inventory
 sudo ./WCC/Disk1/stage/Response/createCentralInventory.sh /u01/app/oraInventory oinstall
