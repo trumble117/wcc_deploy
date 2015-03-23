@@ -37,7 +37,7 @@ The following patches will need to be present in a PATCHES directory underneath 
 | Oracle WebLogic Server | p19637463_1036_Generic.zip | 12UV (January 2015) |
 | Oracle OPatch | p6880880_111000_Linux-x86-64.zip | 11.1.0.12.5 (January 2015) |
 
-#### DO NOTE: The location of these files is very important. They must have the above names and be in the proper location, else deployment will fail and will not continue.
+#### NOTE: The location of these files is very important. They must have the above names and be in the proper location, else deployment will fail and will not continue.
 
 ## Directory Structure
 You can stage the scripts/software from anywhere you like, as long as **oracle** has access to it. Do keep in mind, though, that we will be extracting zip archives and running installers, so while NFS locations are supported, performance may be affected. Once you've chosen a base directory for your scripts (I like to use /tmp), make sure that all of the following are present:
@@ -70,13 +70,13 @@ The scripts were made with simplicity in mind. You will use a utility to answer 
 3. From BASH, **as oracle**, navigate to the *fmwsetup* directory, and run *fmwda.sh*
 	- *Example: ./fmwda.sh*
 	- Answer the questions it asks, as you are setting the values for your deployment.
-4. From BASH, **as oracle**, use *scripts/fmw_deploy.sh* to step through your deployment. Running it without argument will display the help function, along with descriptions for each step.
-	- *Example: ./scripts/fmw_deploy.sh -d 0*   (Deploys step 0)
+4. From BASH, **as oracle**, use *scripts/fmw_deploy.sh* to step through your deployment. Running it without sans arguments will display the help function, along with descriptions for each step.
+	- *Example (to deploy step 0): ./scripts/fmw_deploy.sh -d 0*
 	- Most steps have an undo function that will allow you to back up in case the step fails and you need to retry
 5. During a few of the steps (product installations - steps 2, 3, and 4), the installation gets forked to a background process, and the output does not go to standard out. A log file is displayed for you to follow the installation progress. It is important to watch this log until you see a message stating that installation is complete, before moving to the next step.
-6. After all of the steps have been completed, the Admin Server, Nodemanager, and OHS instance will be up and running. None of the managed servers will be started, however. Navigate to the WLS Administration Console to get started:
+6. After all of the steps have been completed, the AdminServer, Nodemanager, and OHS instance will be up and running. None of the managed servers will be started, however. Navigate to the WLS Administration Console to get started:
 	- http://your_hostname:7001/console
-7. On future start-ups, these resources will not auto-start. I install a small utility to help ease the process, however. It is available as the 'wls' command from BASH, and can be used to start the Admin Server and NodeManager. Run 'wls' (after a profile refresh) to display usage information.
+7. On future start-ups, these resources will not auto-start. I install a small utility to help ease the process, however. It is available as the 'wls' command from BASH, and can be used to start the AdminServer and NodeManager. Run 'wls' (after a profile refresh) to display usage information.
 	- OHS, on the other hand, is controlled via **opmnctl**, located at {DOMAIN_BASE}/{OHS_INSTANCE_NAME}/bin/opmnctl
 
 Please submit issues to me via GitHub. Any time I make a major modification, I always step through a full deployment. However, everyone's setup is different and may run into different issues than me. This is a beta release, and should be treated as such. I offer no warranties or guarantees in conjunction with this code.
