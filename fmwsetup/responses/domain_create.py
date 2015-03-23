@@ -181,7 +181,7 @@ cd ('/')
 filestores = cmo.getFileStores()
 for store in filestores:
 	name = store.getName()
-	store.setDirectory(os.getenv('DOMAIN_BASE') + '/' + os.getenv('DOMAIN_NAME') + '/' + name)
+	store.setDirectory(os.getenv('DOMAIN_BASE') + '/' + os.getenv('DOMAIN_NAME') + '/resources/jms/' + name)
 
 print '>> Enabling WebLogic Plug-in on servers'
 cd('/')

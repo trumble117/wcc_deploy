@@ -16,7 +16,7 @@ admin_pw = os.getenv('ADMIN_PW')
 domain_name = os.getenv('DOMAIN_NAME')
 domain_base = os.getenv('DOMAIN_BASE')
 
-tlog_loc = os.getenv('DOMAIN_BASE') + "/" + os.getenv('DOMAIN_NAME')
+tlog_loc = os.getenv('DOMAIN_BASE') + "/" + os.getenv('DOMAIN_NAME') + "/resources/tlogs"
 
 def configure_tlogs(servername):
     cd('/Servers/' + servername)

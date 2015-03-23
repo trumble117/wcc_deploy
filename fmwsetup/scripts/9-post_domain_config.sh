@@ -119,7 +119,11 @@ fi
 
 cd $FMW_HOME/oracle_common/common/bin/
 ./wlst.sh $RESP_DIR/disable_hostname_verification.py
+
+# Configure log locations and rotation
 ./wlst.sh $RESP_DIR/update_logging.py
+
+# Configure persistent transaction log location
 ./wlst.sh $RESP_DIR/configure_tlogs.py
 
 # Configure JOC using expect
@@ -148,6 +152,14 @@ send "exit()\r"
 
 expect eof
 EOD
+
+# Start NodeManager
+NM_PID=$(ps -ef | grep weblogic.NodeManager | grep -v grep | awk '{print $2}')
+if [[ ! $NM_PID ]]; then
+        echo "Starting up NodeManager..."
+        python ~/wls_scripts/servercontrol.py --start=nodemanager
+        [[ $? != "0" ]] && echo "[> Halting script execution <]" && exit 2
+fi
 
 # Shut down AdminServer
 python ~/wls_scripts/servercontrol.py --stop=admin
