@@ -66,11 +66,11 @@ You can stage the scripts/software from anywhere you like, as long as **oracle**
 The scripts were made with simplicity in mind. You will use a utility to answer a few questions to customize the deployment, then use a deployment script to step through it.
 
 1. Download these scripts and place them in a base directory
-2. Download product installers and patches and place them in their appropriate direcotories under the base directory (described in above sections)
+2. Download product installers and patches and place them in their appropriate directories under the base directory (described in above sections)
 3. From BASH, **as oracle**, navigate to the *fmwsetup* directory, and run *fmwda.sh*
 	- *Example: ./fmwda.sh*
 	- Answer the questions it asks, as you are setting the values for your deployment.
-4. From BASH, **as oracle**, use *scripts/fmw_deploy.sh* to step through your deployment. Running it without sans arguments will display the help function, along with descriptions for each step.
+4. From BASH, **as oracle**, use *scripts/fmw_deploy.sh* to step through your deployment. Running it sans arguments will display the help function, along with descriptions for each step.
 	- *Example (to deploy step 0): ./scripts/fmw_deploy.sh -d 0*
 	- Most steps have an undo function that will allow you to back up in case the step fails and you need to retry
 5. During a few of the steps (product installations - steps 2, 3, and 4), the installation gets forked to a background process, and the output does not go to standard out. A log file is displayed for you to follow the installation progress. It is important to watch this log until you see a message stating that installation is complete, before moving to the next step.
