@@ -113,7 +113,7 @@ punpack
 ADM_PID=$(ps -ef | grep weblogic.Name=AdminServer | grep -v grep | awk '{print $2}')
 if [[ ! $ADM_PID ]]; then
         echo "[WARNING] AdminServer must be running. Starting up..."
-        . ~/.bash_profile
+        [[ -z $WLS_DOMAIN ]] && . ~/.bash_profile
         python ~/wls_scripts/servercontrol.py --start=admin
         [[ $? != "0" ]] && echo "[> Halting script execution <]" && exit 2
 fi
@@ -158,6 +158,7 @@ EOD
 NM_PID=$(ps -ef | grep weblogic.NodeManager | grep -v grep | awk '{print $2}')
 if [[ ! $NM_PID ]]; then
         echo "Starting up NodeManager..."
+    	[[ -z $WLS_DOMAIN ]] && . ~/.bash_profile
         python ~/wls_scripts/servercontrol.py --start=nodemanager
         [[ $? != "0" ]] && echo "[> Halting script execution <]" && exit 2
 fi

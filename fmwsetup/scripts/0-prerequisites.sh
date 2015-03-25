@@ -84,8 +84,8 @@ sudo ./WCC/Disk1/stage/Response/createCentralInventory.sh /u01/app/oraInventory 
 
 # Test if admin server hostname is resolvable
 hostResov=$(dig $ADMIN_SERVER_HOST | grep "ANSWER SECTION:")
-if [[ -n $hostResolv ]]; then
-        myIP=$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+if [[ -z $hostResolv ]]; then
+        myIP=$(hostname -I | awk '{print $1}')
         sudo echo "$myIP        $ADMIN_SERVER_HOST" >> /etc/hosts
 fi
 
