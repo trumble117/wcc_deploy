@@ -19,3 +19,7 @@ sudo rm -rf $DOMAIN_BASE
 echo "> Deleting Inventory"
 sudo rm -rf /u01/app/oraInventory
 sudo rm -rf /etc/oraInst.loc
+
+echo "> Reverting firewall"
+sudo bash -c "iptables-restore < /etc/sysconfig/iptables-BAK"
+sudo bash -c "iptables-save > /etc/sysconfig/iptables"

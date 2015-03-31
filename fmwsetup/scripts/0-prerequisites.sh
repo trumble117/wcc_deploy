@@ -89,6 +89,24 @@ if [[ -z $hostResolv ]]; then
         sudo echo "$myIP        $ADMIN_SERVER_HOST" >> /etc/hosts
 fi
 
+# Modify firewall configuration
+echo ">> Modifying firewall configuration"
+sudo bash -c "iptables-save > /etc/sysconfig/iptables-BAK"
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 7001 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16200 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16250 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16400 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16300 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16000 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 5556 -j ACCEPT
+sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
+sudo bash -c "iptables-save > /etc/sysconfig/iptables"
+
+echo "> DONE"
+
 #PATCH REGISTRY
 #
 # p19637463_1036_Generic.zip - WebLogic Server BP 10 January 2015 (12UV)
