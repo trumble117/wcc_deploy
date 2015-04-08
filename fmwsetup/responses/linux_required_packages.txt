@@ -22,5 +22,4 @@ openmotif
 sysstat
 libX11.i686
 zlib.i686
-dig
 expect

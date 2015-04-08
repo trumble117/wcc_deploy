@@ -240,6 +240,12 @@ sed -i "s|db_pw =.*|db_pw = '$SCHEMA_PW'|g" $MEDIA_BASE/responses/domain_create.
 sed -i "s|UCM_HOST=.*|UCM_HOST=$UCM_HOST|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|SOA_HOSTS=.*|SOA_HOSTS=$SOA_HOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|start_mode =.*|start_mode = '$START_MODE'|g" $MEDIA_BASE/responses/domain_create.py
+if [[ $NUM_MACHINES -eq 1 ]]; then
+	sed -i "s|MULTINODE=.*|MULTINODE=0|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+elif [[ $NUM_MACHINES -gt 1 ]]; then
+	sed -i "s|MULTINODE=.*|MULTINODE=1|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+fi
+sed -i "s|MACHINE_LIST=.*|MACHINE_LIST='${MACHINE_LIST[*]}'|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 
 WT_INSTANCE_HOME=$DOMAIN_BASE/$OHS_INSTANCE_NAME
 ECM_HOME=$FMW_HOME/Oracle_ECM1

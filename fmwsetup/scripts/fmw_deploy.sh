@@ -24,19 +24,20 @@ usage(){
 	echo "		-u		Revert/uninstall this step"
 	echo "		-h|-help	Launch this message"
 	echo
-	echo "Steps:		 0	-	Run prerequisites"
-	echo "		 1	-	Install WebLogic Server"
-	echo "		 2	-	Install WebCenter Content"
-	echo "		 3	-	Install Web Tier"
-	echo " 		 4	-	Install SOA Suite"
-	echo "		 5	-	Apply FMW oneoff patches"
-	echo "		 6	-	Create FMW DB schemas"
-	echo "		 7	-	Create WebLogic domain"
-	echo "		 8	-	Install wls helper scripts"
-	echo "		 9	-	Perform post-domain-config operations"
-	echo "		10	-	Configure Web Tier"
-	echo "		11	-	Install OHS configuration"
-	echo "		12	-	Install initial configuration for WCC + IBR"
+	echo "Steps:		 0	-	Establish node equivalence"
+	echo "		 1	-	Perform prerequisites"
+	echo "		 2	-	Install WebLogic Server"
+	echo "		 3	-	Install WebCenter Content"
+	echo "		 4	-	Install Web Tier"
+	echo " 		 5	-	Install SOA Suite"
+	echo "		 6	-	Apply FMW oneoff patches"
+	echo "		 7	-	Create FMW DB schemas"
+	echo "		 8	-	Create WebLogic domain"
+	echo "		 9	-	Install wls helper scripts"
+	echo "		 10	-	Perform post-domain-config operations"
+	echo "		 11	-	Configure Web Tier"
+	echo "		 12	-	Install OHS configuration"
+	echo "		 13	-	Install initial configuration for WCC + IBR"
 }
 
 [[ -z $1 ]] && usage && exit 2
@@ -50,27 +51,29 @@ if [[ $FUNC == "-h" ]] || [[ $FUNC == "-help" ]]; then
 	exit
 elif [[ $FUNC == "-d" ]]; then
 	case $STEP in
-	0) ./0-prerequisites.sh;;
-	1) ./1-wls_silent_install.sh;;
-	2) ./2-wcc_silent_install.sh;;
-	3) ./3-wt_silent_install.sh;;
-	4) ./4-soa_silent_install.sh;;
-	5) ./5-fmw_patch.sh;;
-	6) ./6-create_db_schemas.sh;;
-	7) ./7-create_domain.sh;;
-	8) ./8-start_script_setup.sh;;
-	9) ./9-post_domain_config.sh;;
-	10) ./10-webtier_config.sh;;
-	11) ./11-ohs_setup.sh;;
-	12) ./12-wcc_config.sh;;
+	0) ./0-ssh_equivalence_setup.sh;;
+	1) ./01-run_prerequisites.sh;;
+	2) ./02-wls_silent_install.sh;;
+	3) ./03-wcc_silent_install.sh;;
+	4) ./04-wt_silent_install.sh;;
+	5) ./05-soa_silent_install.sh;;
+	6) ./06-fmw_patch.sh;;
+	7) ./07-create_db_schemas.sh;;
+	8) ./08-create_domain.sh;;
+	9) ./09-start_script_setup.sh;;
+	10) ./10-post_domain_config.sh;;
+	11) ./11-webtier_config.sh;;
+	12) ./12-ohs_setup.sh;;
+	13) ./13-wcc_config.sh;;
 	*) echo "Not a valid step: $STEP"
 	   usage
 	   exit 2;;
 	esac
 elif [[ $FUNC == "-u" ]]; then
 	case $STEP in
-	0|1|2|3|4|5|6|7|10|11|12) ./$STEP-undo.sh;;
-	8|9) echo "No undo option available for this step";;
+	1|2|3|4|5|6|7) ./0$STEP-undo.sh;;
+	11|12|13) ./$STEP-undo.sh;;
+	0|9|10) echo "No undo option available for this step";;
 	*) echo "Not a valid step: $STEP"
 	   usage
 	   exit 2;;
