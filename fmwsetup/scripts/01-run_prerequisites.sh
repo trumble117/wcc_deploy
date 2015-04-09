@@ -2,7 +2,7 @@
 #
 # Johnathon Trumble
 # john.trumble@oracle.com
-# April 4, 2014
+# April 4, 2015
 #
 # Configure all system prerequisites prior to software installation and configuration
 
@@ -20,7 +20,7 @@ fi
 }
 
 # Source environment settings, exit on error
-[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
+[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 cd $MEDIA_BASE/scripts
@@ -40,19 +40,20 @@ fi
 # Loop through all machines and run prerequisites
 for NODE in ${MACHINE_LIST[*]}; do
 	if [[ $NODE == $(hostname) ]]; then
-		echo "Executing prerequisites on local machine"
+		echo ">> Executing prerequisites on local machine"
 		./prereqs.sh
 	else
-        ssh oracle@$NODE "[[ -d $MEDIA_BASE ]] && exit 1 || exit 0"
+        ssh -o StrictHostKeyChecking=no -t oracle@$NODE "[[ -d $MEDIA_BASE ]] && exit 1 || exit 0"
         if [[ $? == 0 ]]; then
-                echo "Media base does not exist on remote host. Ensure that these scripts are accessible via a mount point and try again"
+                echo ">>> Media base does not exist on remote host. Ensure that these scripts are accessible via a mount point and try again"
                 exit 2
         fi
-        echo "Executing prerequisites on node $NODE"
+        echo ">> Executing prerequisites on node $NODE"
         ssh -o StrictHostKeyChecking=no -t oracle@$NODE "cd $MEDIA_BASE/scripts; ./prereqs.sh"
 	fi
 	if [[ $? == 1 ]]; then
-		echo "An error occurred during prerequsite execution. Please inspect the output, correct the error, and try again"
+		echo "[FATAL] An error occurred during prerequsite execution. Please inspect the output, correct the error, and try again"
+		echo ">> [NODE IN ERROR]: $NODE"
 		cleanup
 		exit 2
 	fi	

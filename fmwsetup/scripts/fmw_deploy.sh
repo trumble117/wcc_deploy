@@ -14,7 +14,7 @@ MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $MY_DIR
 
 # Source environment settings, exit on error
-#[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
+#[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
 #[[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 usage(){
@@ -60,7 +60,7 @@ elif [[ $FUNC == "-d" ]]; then
 	6) ./06-fmw_patch.sh;;
 	7) ./07-create_db_schemas.sh;;
 	8) ./08-create_domain.sh;;
-	9) ./09-start_script_setup.sh;;
+	9) ./09-deploy_start_scripts.sh;;
 	10) ./10-post_domain_config.sh;;
 	11) ./11-webtier_config.sh;;
 	12) ./12-ohs_setup.sh;;
@@ -71,7 +71,7 @@ elif [[ $FUNC == "-d" ]]; then
 	esac
 elif [[ $FUNC == "-u" ]]; then
 	case $STEP in
-	1|2|3|4|5|6|7) ./0$STEP-undo.sh;;
+	1|2|3|4|5|6|7|8) ./0$STEP-undo.sh;;
 	11|12|13) ./$STEP-undo.sh;;
 	0|9|10) echo "No undo option available for this step";;
 	*) echo "Not a valid step: $STEP"

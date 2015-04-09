@@ -49,6 +49,9 @@ def create_machines():
 	print '>>> Create machines and assign servers to them'
 	servers = cmo.getServers()
 	for i in range(len(machine_listen_addresses)):
+		cd('/')
+		split_name = machine_listen_addresses[i].split('.')
+		shortname = split_name[0]
 		machine = create('machine_' + machine_listen_addresses[i], 'UnixMachine')
 		cd('Machine/' + machine.getName())
 		create(machine.getName(), 'NodeManager')

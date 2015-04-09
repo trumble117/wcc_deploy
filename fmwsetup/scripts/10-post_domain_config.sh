@@ -13,7 +13,7 @@
 # 03/23/2015 - Added NodeManager startup
 
 # Source environment settings, exit on error
-[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
+[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 NM_START_TIMEOUT=120
@@ -23,7 +23,7 @@ SOA_DISCOVER_PORT="9998"
 usage(){
 	echo "~*~* Run as the oracle install user _after_ creating/extending the domain *~*~"
 	echo
-	echo " Fill in all information in the provide[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh"
+	echo " Fill in all information in the provide[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh"
 }
 
 punpack(){
@@ -162,6 +162,27 @@ if [[ ! $NM_PID ]]; then
         python ~/wls_scripts/servercontrol.py --start=nodemanager
         [[ $? != "0" ]] && echo "[> Halting script execution <]" && exit 2
 fi
+
+# Perform unpack operations on all remote nodes
+for NODE in ${MACHINE_LIST[*]}; do
+	if [[ $NODE == $(hostname) ]]; then
+		echo ">> Skipping this machine, since operations have already been performed"
+	else
+        ssh -o StrictHostKeyChecking=no -t oracle@$NODE "[[ -d $MEDIA_BASE ]] && exit 1 || exit 0"
+        if [[ $? == 0 ]]; then
+                echo ">>> Media base does not exist on remote host. Ensure that these scripts are accessible via a mount point and try again"
+                exit 2
+        fi
+        echo ">> Performing remote node setup on node $NODE"
+        ssh -o StrictHostKeyChecking=no -t oracle@$NODE "cd $MEDIA_BASE/scripts; ./post_domain_remote.sh"
+	fi
+	if [[ $? == 1 ]]; then
+		echo "[FATAL] An error occurred during remote node setup. Please inspect the output, correct the error, and try again"
+		echo ">> [NODE IN ERROR]: $NODE"
+		cleanup
+		exit 2
+	fi	
+done
 
 # Shut down AdminServer
 python ~/wls_scripts/servercontrol.py --stop=admin

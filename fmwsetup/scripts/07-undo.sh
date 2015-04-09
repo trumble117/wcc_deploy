@@ -10,7 +10,7 @@
 # 03/13/2015 - Added SOA and IPM resources
 
 # Source environment settings, exit on error
-[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
+[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 echo "> Begin drop of DB schemas"

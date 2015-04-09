@@ -9,7 +9,7 @@
 # CHANGELOG
 
 # Source environment settings, exit on error
-[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
+[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 chmod a+x $STAGE_DIR/wls1036_generic.jar
