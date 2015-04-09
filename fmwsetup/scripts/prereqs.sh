@@ -9,14 +9,21 @@
 # CHANGELOG
 # 03/02/2015 - Added SOA, Updated Patch Registry
 
+create_error () {
+	echo "$1"
+	echo ">> [NODE IN ERROR]: $HOSTNAME"
+	exit 1
+}
+
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . setScriptEnv.sh
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 THIS_USER=$(whoami)
-[[ $THIS_USER != "oracle" ]] && echo ">> Please run these scripts as oracle. <<" && exit 1
+[[ $THIS_USER != "oracle" ]] && create_error ">> Please run these scripts as oracle. <<"
 
-REQ_DIRS=($FMW_HOME $DOMAIN_BASE/$DOMAIN_NAME/aserver $INTRADOC_DIR $DOMAIN_BASE/$DOMAIN_NAME/resources $LOG_DIR)
+LOCAL_DIRS=($FMW_HOME $DOMAIN_BASE)
+MULTI_DIRS=($FMW_HOME $DOMAIN_BASE/$DOMAIN_NAME/aserver $INTRADOC_DIR $DOMAIN_BASE/$DOMAIN_NAME/resources $LOG_DIR)
 
 # Test for sudo privileges
 sudo -n touch SUDOtest
@@ -35,9 +42,9 @@ fi
 
 # Test if oinstall exists - add oracle to it
 [[ ! $(grep oinstall /etc/group) ]] && sudo groupadd oinstall
-[[ ! $(grep oinstall /etc/group) ]] && echo ">> [FATAL] Failed to create oinstall group" && exit 1
+[[ ! $(grep oinstall /etc/group) ]] && create_error ">> [FATAL] Failed to create oinstall group"
 if [[ ! $(groups | grep oinstall) ]]; then
-	sudo usermod -a -G oinstall oracle || echo ">> [FATAL] Failed to add oracle to oinstall group" && exit 1
+	sudo usermod -a -G oinstall oracle || create_error ">> [FATAL] Failed to add oracle to oinstall group"
 	echo "WARNING: You must now log out and back in to refresh user group membership before proceeding!"
 	exit 1
 fi
@@ -48,17 +55,22 @@ sudo yum clean all
 sudo yum install -y $(cat $RESP_DIR/linux_required_packages.txt)
 
 # Test for required filesystem directories
+echo "> Running directory checks.."
 if [[ $MULTINODE == 0 ]]; then
-	echo "> Creating domain folder resources on disk"
-	[[ ! -d $FMW_DIR ]] && sudo mkdir -p $FMW_HOME && sudo chown oracle:oinstall -R $FMW_HOME
-	[[ ! -d $DOMAIN_BASE ]] && sudo mkdir -p $DOMAIN_BASE && sudo chown oracle:oinstall -R $DOMAIN_BASE	
-elif [[ $MULTINODE == 1 ]]; then
-	echo "> Running directory checks.."
-	echo "> If a location is not present, we will create it now, but the installer will exit so you can mount it to an NFS resource."
-	for DIR in ${REQ_DIRS[@]}; do
+	for DIR in ${LOCAL_DIRS[@]}; do
 		if [[ ! -d $DIR ]]; then
-			sudo mkdir -p $DIR || echo ">> [FATAL] Failed to create $DIR" && exit 1
-			sudo chown oracle:oinstall $DIR || echo ">> [FATAL] Failed to set permissions for $DIR" && exit 1
+			echo ">> Creating $DIR"
+			sudo mkdir -p $DIR || create_error ">> [FATAL] Failed to create $DIR"
+			sudo chown oracle:oinstall $DIR || create_error ">> [FATAL] Failed to set permissions for $DIR"
+		fi
+	done
+elif [[ $MULTINODE == 1 ]]; then
+	echo "> If a location is not present, we will create it now, but the installer will exit so you can mount it to an NFS resource."
+	for DIR in ${MULTI_DIRS[@]}; do
+		if [[ ! -d $DIR ]]; then
+			echo "> Creating $DIR"
+			sudo mkdir -p $DIR || create_error ">> [FATAL] Failed to create $DIR"
+			sudo chown oracle:oinstall $DIR || create_error ">> [FATAL] Failed to set permissions for $DIR"
 			REM_LIST="$REM_LIST\n$DIR"
 		fi
 	done
@@ -70,32 +82,30 @@ elif [[ $MULTINODE == 1 ]]; then
 		echo ">> Please mount these directories to an NFS or shared location, then re-run this step."
 		echo ">> [ Node in violation ]: $HOSTNAME"
 		exit 1
-	else
-		echo "> Filesystem directory checks passed."
 	fi
 fi
+echo ">> Filesystem directory checks passed."
 
 # Test directory permissions
+echo "> Running directory permissions checks.."
 if [[ $MULTINODE == 0 ]]; then
-	LOCAL_DIRS=($FMW_HOME $DOMAIN_BASE)
-	echo "> Running directory permissions checks.."
 	for DIR in ${LOCAL_DIRS[@]}; do
 		TEST=$(stat -c "%U %G" $DIR)
 		if [[ $TEST != "oracle oinstall" ]]; then
 			echo ">> Modifying permissions for $DIR"
-			sudo chown -R oracle:oinstall $DIR || echo ">> [FATAL] Failed to set permissions for $DIR" && exit 1
+			sudo chown -R oracle:oinstall $DIR || create_error ">> [FATAL] Failed to set permissions for $DIR"
 		fi
 	done
 elif [[ $MULTINODE == 1 ]]; then
-	echo "> Running directory permissions checks.."
-	for DIR in ${REQ_DIRS[@]}; do
+	for DIR in ${MULTI_DIRS[@]}; do
 		TEST=$(stat -c "%U %G" $DIR)
 		if [[ $TEST != "oracle oinstall" ]]; then
 			echo ">> Modifying permissions for $DIR"
-			sudo chown -R oracle:oinstall $DIR || echo ">> [FATAL] Failed to set permissions for $DIR" && exit 1
+			sudo chown -R oracle:oinstall $DIR || create_error ">> [FATAL] Failed to set permissions for $DIR"
 		fi
 	done
 fi
+echo ">> Directory permissions checks passed."
 
 sudo yum install -y $STAGE_DIR/jdk-7u71-linux-x64.rpm
 export PATH=$PATH:$JAVA_HOME/bin
@@ -115,16 +125,12 @@ do
 done
 
 if [[ -n $DEADHOSTS ]]; then
-	echo "[FATAL] The following hosts were not accessible: ${DEADHOSTS[*]}"
-	echo ">> Node in error: $HOSTNAME"
-	echo ">> Please correct the problem and try again"
-	exit 1
+	create_error "[FATAL] The following hosts were not accessible: ${DEADHOSTS[*]}"
 fi
 
 # Check NFS mounting
 if [[ $MULTINODE == 1 ]]; then
-	REQ_DIRS=($FMW_HOME $DOMAIN_BASE/$DOMAIN_NAME/aserver $DOMAIN_BASE/$DOMAIN_NAME/intradoc $DOMAIN_BASE/$DOMAIN_NAME/resources $DOMAIN_BASE/oracle_logs/$DOMAIN_NAME)
-	for DIR in ${REQ_DIRS[@]}; do
+	for DIR in ${MULTI_DIRS[@]}; do
 		if [[ ! -f $FMW_HOME/test.nfs ]]; then
 			NO_FILE="$NO_FILE\n$DIR"
 		fi
@@ -156,6 +162,7 @@ sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001
 sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 5556 -j ACCEPT
 sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
 sudo bash -c "iptables-save > /etc/sysconfig/iptables"
+[[ $? == 1 ]] && create_error ">> [FATAL] Firewall rules were not successfully saved."
 
 echo "> DONE"
 
