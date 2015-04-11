@@ -51,7 +51,7 @@ for NODE in ${MACHINE_LIST[*]}; do
         echo ">> Executing prerequisites on node $NODE"
         ssh -o StrictHostKeyChecking=no -t oracle@$NODE "cd $MEDIA_BASE/scripts; ./prereqs.sh"
 	fi
-	if [[ $? == 1 ]]; then
+	if [[ $? == 2 ]]; then
 		echo "[FATAL] An error occurred during prerequsite execution. Please inspect the output, correct the error, and try again"
 		echo ">> [NODE IN ERROR]: $NODE"
 		cleanup

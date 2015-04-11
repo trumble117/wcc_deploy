@@ -69,6 +69,10 @@ def create_machines():
 					print '>>>> Assigning ' + server.getName() + ' to ' + machine.getName()
 					server.setMachine(machine)
 	cd('/')
+	machines = ls('/Machine/')
+	if machines.find('LocalMachine') != -1:
+		print ">>> Deleting LocalMachine"
+		delete('LocalMachine','Machine')
 
 def create_cluster(cluster_name):
     print '>>> Create cluster: ' + cluster_name

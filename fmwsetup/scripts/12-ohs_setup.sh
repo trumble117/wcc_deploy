@@ -34,129 +34,130 @@ LoadModule weblogic_module   "\${ORACLE_HOME}/ohs/modules/mod_wl_ohs.so"
 #      MatchExpression *.jsp
  # Content Server
  <Location /cs>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16200
+	     SetHandler weblogic-handler
+		 WebLogicCluster $UCMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
   <Location /adfAuthentication>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16200
+	     SetHandler weblogic-handler
+		 WebLogicCluster $UCMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
  
  # Inbound Refinery
   <Location /ibr>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16250
+	     SetHandler weblogic-handler
+		 WebLogicCluster $IBRHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
  
  # Document Capture
  <Location /dc-client>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16400
+	     SetHandler weblogic-handler
+		 WebLogicCluster $CAPHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
   <Location /dc-console>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16400
+	     SetHandler weblogic-handler
+		 WebLogicCluster $CAPHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
   <Location /dc-help>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16400
+	     SetHandler weblogic-handler
+		 WebLogicCluster $CAPHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
  
  # URM
   <Location /urm>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16300
+	     SetHandler weblogic-handler
+		 WebLogicCluster $URMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # Imaging
  <Location /imaging>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-     WebLogicPort 16000
+	     SetHandler weblogic-handler
+		 WebLogicCluster $URMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 <Location /axf-ws>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-     WebLogicPort 16000
+	     SetHandler weblogic-handler
+		 WebLogicCluster $URMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # WSM-PM
  <Location /wsm-pm>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # SOA soa-infra app
  <Location /soa-infra>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # SOA inspection.wsil
  <Location /inspection.wsil>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # Worklist
  <Location /integration/>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # UMS prefs
  <Location /sdpmessaging/userprefs-ui>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # Default to-do taskflow
  <Location /DefaultToDoTaskFlow/>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
 # Workflow
  <Location /workflow>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  #SOA Composer
  <Location /soa/composer>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
  
 </IfModule>
@@ -260,130 +261,131 @@ Listen 443
 #      WLLogFile /tmp/weblogic.log
 #      MatchExpression *.jsp
  # Content Server
- <Location /cs>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16200
+  <Location /cs>
+	     SetHandler weblogic-handler
+		 WebLogicCluster $UCMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
   <Location /adfAuthentication>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16200
+	     SetHandler weblogic-handler
+		 WebLogicCluster $UCMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
  
  # Inbound Refinery
   <Location /ibr>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16250
+	     SetHandler weblogic-handler
+		 WebLogicCluster $IBRHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
  
  # Document Capture
  <Location /dc-client>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16400
+	     SetHandler weblogic-handler
+		 WebLogicCluster $CAPHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
   <Location /dc-console>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16400
+	     SetHandler weblogic-handler
+		 WebLogicCluster $CAPHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
   <Location /dc-help>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16400
+	     SetHandler weblogic-handler
+		 WebLogicCluster $CAPHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
  
  # URM
   <Location /urm>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-      WebLogicPort 16300
+	     SetHandler weblogic-handler
+		 WebLogicCluster $URMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
- 
+
  # Imaging
  <Location /imaging>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-     WebLogicPort 16000
+	     SetHandler weblogic-handler
+		 WebLogicCluster $URMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 <Location /axf-ws>
-      SetHandler weblogic-handler
-      WebLogicHost $(hostname)
-     WebLogicPort 16000
+	     SetHandler weblogic-handler
+		 WebLogicCluster $URMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # WSM-PM
  <Location /wsm-pm>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # SOA soa-infra app
  <Location /soa-infra>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # SOA inspection.wsil
  <Location /inspection.wsil>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # Worklist
  <Location /integration/>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # UMS prefs
  <Location /sdpmessaging/userprefs-ui>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  # Default to-do taskflow
  <Location /DefaultToDoTaskFlow/>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
 # Workflow
  <Location /workflow>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 
  #SOA Composer
  <Location /soa/composer>
-     WebLogicHost $(hostname)
-     SetHandler weblogic-handler
-     WLProxySSL OFF
-     WLProxySSLPassThrough OFF
-     WebLogicPort 8001
+	     SetHandler weblogic-handler
+		 WebLogicCluster $SOAHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
  </Location>
 </IfModule>
 </VirtualHost>

@@ -11,6 +11,17 @@
 # 03/19/2015 - Edited to reflect new machine names
 #			   Added option for start mode
 
+contains() {
+    string="$1"
+    substring="$2"
+    if test "${string#*$substring}" != "$string"
+    then
+        return 0    # $substring is in $string
+    else
+        return 1    # $substring is not in $string
+    fi
+}
+
 [[ ! -e scripts/setScriptEnv.sh ]] && echo "Something's not right, setScriptEnv.sh does not exist in the scripts directory. Exiting..." && exit 2
 
 echo "  ___ __  ____      _____   _    "
@@ -132,7 +143,7 @@ while [[ $PASSWORDS_MATCH == 0 ]]; do
 		echo "I'm not joking, I really need it to continue. Enter it now:"
 		read -s SYS_PW
 		let count=count+1
-		[[ $count -eq 3 ]] && echo "Giving up" && exit 1
+		[[ $count -eq 3 ]] && echo "Giving up" && exit 2
 	done
 	echo "Confirm:"
 	read -s CONF_PASS
@@ -153,7 +164,7 @@ while [[ $PASSWORDS_MATCH == 0 ]]; do
 		echo "I'm not joking, I really need it to continue. Enter it now:"
 		read -s SCHEMA_PW
 		let count=count+1
-		[[ $count -eq 3 ]] && echo "Giving up" && exit 1
+		[[ $count -eq 3 ]] && echo "Giving up" && exit 2
 	done
 	echo "Confirm:"
 	read -s CONF_PASS
@@ -191,7 +202,7 @@ for j in `seq 1 $NUM_MACHINES`; do
 			echo "I'm not joking, I really need it to continue. Enter it now:"
 			read NEW_MACHINE
 			let count=count+1
-			[[ $count -eq 3 ]] && echo "Giving up" && exit 1
+			[[ $count -eq 3 ]] && echo "Giving up" && exit 2
 		done
 		MACHINE_LIST[$j]=$NEW_MACHINE
 done
@@ -208,21 +219,40 @@ echo
 echo "Now we need to match the servers to be deployed to the UNIX machine(s)"
 echo
 MACHINE_ASSIGNMENTS="dict("
-MANAGED_SERVERS=(FMW_UCM1 FMW_IBR1 FMW_URM1 FMW_CAP1 FMW_IPM1 FMW_SOA1)
+if [[ $NUM_MACHINES -gt 1 ]]; then
+	MANAGED_SERVERS=(FMW_UCM1 FMW_UCM2 FMW_IBR1 FMW_IBR2 FMW_URM1 FMW_URM2 FMW_CAP1 FMW_CAP2 FMW_IPM1 FMW_IPM2 FMW_SOA1 FMW_SOA2)
+else
+	MANAGED_SERVERS=(FMW_UCM1 FMW_IBR1 FMW_URM1 FMW_CAP1 FMW_IPM1 FMW_SOA1)
+fi
 for SERVER in ${MANAGED_SERVERS[*]}; do
 echo "Select a UNIX machine to host $SERVER"
         select MACHINE in ${MACHINE_LIST[*]}; do
 				MACHINE_ASSIGNMENTS="$MACHINE_ASSIGNMENTS$SERVER='$MACHINE'"
-				[[ $SERVER == "FMW_UCM1" ]] && UCM_HOST=$MACHINE
-				if [[ $SERVER == *"SOA"* ]]; then
-					if [[ -z $SOA_HOSTS ]]; then
-						SOA_HOSTS=$MACHINE
-					elif [[ -n $SOA_HOSTS ]]; then
-						SOA_HOSTS=$SOA_HOSTS,$MACHINE
-					fi
-				fi
-                break
-        done
+				#[[ $SERVER == "FMW_UCM1" ]] && UCM_HOST=$MACHINE
+				case "$SERVER" in
+					*"UCM"*) [[ -n $UCMHOSTS ]] && UCMHOSTS=$UCMHOSTS,$MACHINE:16200
+							 [[ -z $UCMHOSTS ]] && UCMHOSTS=$MACHINE:16200
+							 ;;
+					*"SOA"*) [[ -n $SOA_HOSTNAMES ]]&& SOA_HOSTNAMES=$SOA_HOSTNAMES,$MACHINE
+							 [[ -z $SOA_HOSTNAMES ]] && SOA_HOSTNAMES=$MACHINE 
+							 [[ -n $SOAHOSTS ]] && SOAHOSTS=$SOAHOSTS,$MACHINE:8001
+							 [[ -z $SOAHOSTS ]] && SOAHOSTS=$MACHINE:8001
+							 ;;
+					*"IBR"*) [[ -n $IBRHOSTS ]] && IBRHOSTS=$IBRHOSTS,$MACHINE:16250
+							 [[ -z $IBRHOSTS ]] && IBRHOSTS=$MACHINE:16250
+							 ;;
+					*"URM"*) [[ -n $URMHOSTS ]] && URMHOSTS=$URMHOSTS,$MACHINE:16300
+							 [[ -z $URMHOSTS ]] && URMHOSTS=$MACHINE:16300
+							 ;;
+					*"CAP"*) [[ -n $CAPHOSTS ]] && CAPHOSTS=$CAPHOSTS,$MACHINE:16400
+							 [[ -z $CAPHOSTS ]] && CAPHOSTS=$MACHINE:16400
+							 ;;
+					*"IPM"*) [[ -n $IPMHOSTS ]] && IPMHOSTS=$IPMHOSTS,$MACHINE:16000
+							 [[ -z $IPMHOSTS ]] && IPMHOSTS=$MACHINE:16000
+							 ;;
+				esac
+        		break
+    	done
         if [[ $SERVER != ${MANAGED_SERVERS[${#MANAGED_SERVERS[@]} - 1]} ]]; then
                 MACHINE_ASSIGNMENTS="$MACHINE_ASSIGNMENTS, "
         fi
@@ -237,8 +267,8 @@ echo "Writing responses to file: $MEDIA_BASE/responses/domain_create.py"
 sed -i "s|machine_listen_addresses =.*|machine_listen_addresses = $MACHINE_ADDRESSES|g" $MEDIA_BASE/responses/domain_create.py
 sed -i "s|machine_assignments =.*|machine_assignments = $MACHINE_ASSIGNMENTS|g" $MEDIA_BASE/responses/domain_create.py
 sed -i "s|db_pw =.*|db_pw = '$SCHEMA_PW'|g" $MEDIA_BASE/responses/domain_create.py
-sed -i "s|UCM_HOST=.*|UCM_HOST=$UCM_HOST|g" $MEDIA_BASE/scripts/setScriptEnv.sh
-sed -i "s|SOA_HOSTS=.*|SOA_HOSTS=$SOA_HOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+#sed -i "s|UCM_HOST=.*|UCM_HOST=$UCM_HOST|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|SOA_HOSTNAMES=.*|SOA_HOSTNAMES=$SOA_HOSTNAMES|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|start_mode =.*|start_mode = '$START_MODE'|g" $MEDIA_BASE/responses/domain_create.py
 if [[ $NUM_MACHINES -eq 1 ]]; then
 	sed -i "s|MULTINODE=.*|MULTINODE=0|g" $MEDIA_BASE/scripts/setScriptEnv.sh
@@ -246,6 +276,13 @@ elif [[ $NUM_MACHINES -gt 1 ]]; then
 	sed -i "s|MULTINODE=.*|MULTINODE=1|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 fi
 sed -i "s|MACHINE_LIST=.*|MACHINE_LIST='${MACHINE_LIST[*]}'|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+
+sed -i "s|UCMHOSTS=.*|UCMHOSTS=$UCMHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|IBRHOSTS=.*|IBRHOSTS=$IBRHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|SOAHOSTS=.*|SOAHOSTS=$SOAHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|URMHOSTS=.*|URMHOSTS=$URMHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|IPMHOSTS=.*|IPMHOSTS=$IPMHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|CAPHOSTS=.*|CAPHOSTS=$CAPHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 
 WT_INSTANCE_HOME=$DOMAIN_BASE/$OHS_INSTANCE_NAME
 ECM_HOME=$FMW_HOME/Oracle_ECM1

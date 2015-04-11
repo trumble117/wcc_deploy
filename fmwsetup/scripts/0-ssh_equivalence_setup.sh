@@ -15,3 +15,7 @@
 REMOTE_MACHINES=( "${MACHINE_LIST[@]/$HOSTNAME}" )
 
 $MEDIA_BASE/scripts/sshUserSetup.sh -user oracle -hosts "${REMOTE_MACHINES[@]}" -noPromptPassphrase -confirm -advanced
+if [[ $? == 1 ]]; then
+	echo "[FATAL] An error occurred during ssh equivalence setup. Please inspect the output, and try again"
+	exit 2
+fi

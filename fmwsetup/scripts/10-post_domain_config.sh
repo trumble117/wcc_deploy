@@ -93,7 +93,7 @@ LogAppend=true
 StateCheckInterval=500
 CrashRecoveryEnabled=false
 StartScriptEnabled=true
-LogFile=$WL_HOME/common/nodemanager/nodemanager.log
+LogFile=$DOMAIN_BASE/nodemanager.log
 LogFormatter=weblogic.nodemanager.server.LogFormatter
 ListenBacklog=50
 EOF
@@ -137,7 +137,7 @@ send "connect('weblogic','$ADMIN_PW','t3://$ADMIN_SERVER_HOST:7001')\r"
 expect "*serverConfig> "
 send "execfile('$FMW_HOME/oracle_common/bin/configure-joc.py')\r"
 expect "Enter Hostnames*"
-send "$SOA_HOSTS\r"
+send "$SOA_HOSTNAMES\r"
 expect "Do you want to specify a cluster name*"
 send "y\r"
 expect "Enter Cluster Name*"
@@ -176,10 +176,9 @@ for NODE in ${MACHINE_LIST[*]}; do
         echo ">> Performing remote node setup on node $NODE"
         ssh -o StrictHostKeyChecking=no -t oracle@$NODE "cd $MEDIA_BASE/scripts; ./post_domain_remote.sh"
 	fi
-	if [[ $? == 1 ]]; then
+	if [[ $? == 2 ]]; then
 		echo "[FATAL] An error occurred during remote node setup. Please inspect the output, correct the error, and try again"
 		echo ">> [NODE IN ERROR]: $NODE"
-		cleanup
 		exit 2
 	fi	
 done

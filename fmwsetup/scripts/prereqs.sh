@@ -12,7 +12,7 @@
 create_error () {
 	echo "$1"
 	echo ">> [NODE IN ERROR]: $HOSTNAME"
-	exit 1
+	exit 2
 }
 
 # Source environment settings, exit on error
@@ -28,14 +28,14 @@ MULTI_DIRS=($FMW_HOME $DOMAIN_BASE/$DOMAIN_NAME/aserver $INTRADOC_DIR $DOMAIN_BA
 # Test for sudo privileges
 sudo -n touch SUDOtest
 if [[ ! -a SUDOtest ]]; then
-	echo "User oracle does not have the sufficient privileges to SUDO on this machine."
-	echo "Execute $PWD/fixSudo.sh as a root user to fix privileges before continuing."
+	echo "> User oracle does not have the sufficient privileges to SUDO on this machine."
+	echo "> Execute $PWD/fixSudo.sh as a root user to fix privileges before continuing."
 	echo
 	
 	cat << EOF > fixSudo.sh
 echo "oracle	ALL=(ALL)	NOPASSWD: ALL" > /etc/sudoers.d/oracle
 EOF
-	exit 1
+	create_error ">> Setup will now exit"
 fi
 [[ -a SUDOtest ]] && rm -f SUDOtest
 [[ -a fixSudo.sh ]] && rm -f fixSudo.sh
@@ -46,7 +46,7 @@ fi
 if [[ ! $(groups | grep oinstall) ]]; then
 	sudo usermod -a -G oinstall oracle || create_error ">> [FATAL] Failed to add oracle to oinstall group"
 	echo "WARNING: You must now log out and back in to refresh user group membership before proceeding!"
-	exit 1
+	create_error ">> Setup will now exit"
 fi
 echo "> The group 'oinstall' exists and user 'oracle' is a member"
 
@@ -80,8 +80,7 @@ elif [[ $MULTINODE == 1 ]]; then
 		echo 
 		echo ">> These directories are required to reside on shared storage for multinode deployment."
 		echo ">> Please mount these directories to an NFS or shared location, then re-run this step."
-		echo ">> [ Node in violation ]: $HOSTNAME"
-		exit 1
+		create_error ">> Setup will now exit"
 	fi
 fi
 echo ">> Filesystem directory checks passed."
@@ -140,29 +139,32 @@ if [[ $MULTINODE == 1 ]]; then
 		echo -e $NO_FILE
 		echo
 		echo ">> Please ensure that all nodes are mounted to the same shared storage locations for the above and run this step again."
-		echo ">> [ Node in violation ]: $HOSTNAME"
-		exit 1
+		create_error ">> Setup will now exit"
 	else
 		echo "> Shared filesystem checks passed"
 	fi
 fi
 
 # Modify firewall configuration
-echo ">> Modifying firewall configuration"
-sudo bash -c "iptables-save > /etc/sysconfig/iptables-BAK"
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 7001 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16200 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16250 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16400 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16300 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 16000 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 5556 -j ACCEPT
-sudo iptables -i filter -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
-sudo bash -c "iptables-save > /etc/sysconfig/iptables"
-[[ $? == 1 ]] && create_error ">> [FATAL] Firewall rules were not successfully saved."
+if [[ -z $(sudo grep 7001 /etc/sysconfig/iptables) ]]; then
+	echo ">> Modifying firewall configuration"
+	sudo bash -c "iptables-save > /etc/sysconfig/iptables-BAK"
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 7001 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16200 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16250 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16400 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16300 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16000 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 5556 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
+	sudo bash -c "iptables-save > /etc/sysconfig/iptables"
+	[[ $? == 1 ]] && create_error ">> [FATAL] Firewall rules were not successfully saved."
+else
+	echo ">> Firewall rules already present on this machine"
+fi
 
 echo "> DONE"
 
