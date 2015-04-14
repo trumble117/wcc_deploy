@@ -9,6 +9,9 @@
 # 03/19/2015 - Added functionality to edit server names
 # 			   to make them more consistent
 #			   Added variable-based start mode
+# 04/13/2015 - Moved all post-creation domain configuration
+#              into this script
+#              Added SOA tangosol configuration
 
 import os, sys
 
@@ -43,6 +46,9 @@ frontend_host = os.getenv('LOAD_BAL_ADDR')
 # DB variables
 db_url = os.getenv('DB_URL')
 db_prefix = os.getenv('SCHEMA_PREFIX') + '_'
+
+tlog_loc = os.getenv('DOMAIN_BASE') + "/" + os.getenv('DOMAIN_NAME') + "/resources/tlogs"
+log_dir = os.getenv('LOG_DIR')
 
 # DEFINITIONS
 def create_machines():
@@ -101,6 +107,98 @@ def update_server_name(old_name, new_name):
 	print '>>> Changing ' + old_name + ' to ' + new_name
 	cd('/Server/' + old_name)
 	cmo.setName(new_name)
+	
+def build_wkas():
+	count = 1
+	soa_wkas = ''
+	cd('/')
+	for server in cmo.getServers():
+		servername = str(server.getName())
+		if 'SOA' in servername:
+			if not soa_wkas:
+				soa_wkas = '-Dtangosol.coherence.wka' + str(count) + '=' + machine_assignments[servername]
+			else:
+				soa_wkas = soa_wkas + ' -Dtangosol.coherence.wka' + str(count) + '=' + machine_assignments[servername]
+			count += 1
+	print '[DEBUG] ' + soa_wkas
+	return soa_wkas
+				
+def set_wka(servername, base_wkas):
+	print '>>> Setting well-known-addresses for ' + servername
+	cd('/Server/' + servername)
+	create(servername,'ServerStart')
+	cd('ServerStart/' + servername)
+	new_wkas = base_wkas + ' -Dtangosol.coherence.localhost=' + machine_assignments[servername]
+	set ('Arguments', new_wkas)
+	
+def disable_hostname_verification(servername):
+	print '>> Creating SSL MBean for ' + servername
+	cd('/Server/' + servername)
+	create(servername,'SSL')
+	print '>>> Disabling hostname verification for ' + servername
+	cd('SSL/' + servername)
+	cmo.setHostnameVerificationIgnored(java.lang.Boolean('true'))
+	cmo.setHostnameVerifier('null')
+
+#def enable_weblogic_plugin(servername):
+#	print '>>> Enabling WebLogic Plug-in on ' + servername
+#	cd('/Server/' + servername)
+#	cmo.setWeblogicPluginEnabled(java.lang.Boolean('true'))
+
+def update_log_config(servername):
+    cd('/Server/' + servername)
+    print '>>> Creating Log MBean for ' + servername
+    create(servername,'Log')
+    cd('Log/' + servername)
+    print '>>>> Editing ' + servername + ' runtime log configuration'
+    cmo.setRotationType('byTime')
+    cmo.setRotateLogOnStartup(false)
+    cmo.setFileName(log_dir + '/' + servername + '/' + servername + '.log')
+    
+    cd('/Server/' + servername)
+    print '>>> Creating WebServer MBean for ' + servername
+    create(servername,'WebServer')
+    cd('WebServer/' + servername)
+    create(servername,'WebServerLog')
+    cd('WebServerLog/' + servername)
+    print '>>>> Editing ' + servername + ' webserver log configuration'
+    cmo.setRotationType('byTime')
+    cmo.setRotateLogOnStartup(false)
+    cmo.setFileName(log_dir + '/' + servername + '/access.log')
+    
+    cd('/Server/' + servername)
+    print '>>> Creating DataSource MBean for ' + servername
+    create(servername,'DataSource')
+    cd('DataSource/' + servername)
+    create(servername,'DataSourceLogFile')
+    cd('DataSourceLogFile/' + servername)
+    print '>>>> Editing ' + servername + ' datasource log configuration'
+    cmo.setRotationType('byTime')
+    cmo.setRotateLogOnStartup(false)
+    cmo.setFileName(log_dir + '/' + servername + '/datasource.log')
+
+def configure_tlogs(servername):
+    cd('/Servers/' + servername)
+    if cmo.getCluster() != None:
+    	print '>>> Updating transaction log configuration for ' + servername
+        cluster = cmo.getCluster().getName()
+        cmo.setJMSThreadPoolSize(0)
+        cmo.setXMLRegistry(None)
+        cmo.setXMLEntityCache(None)
+        
+        cd('/Servers/' + servername)
+        print '>>> Creating DefaultFileStore MBean for ' + servername
+        create(servername,'DefaultFileStore')
+        cd('DefaultFileStore/' + servername)
+        cmo.setDirectory(tlog_loc + '/' + cluster + '/tlogs')
+        
+        cd('/Servers/' + servername)
+        print '>>> Creating TransactionLogJDBCStore MBean for ' + servername
+        create(servername,'TransactionLogJDBCStore')
+        cd('TransactionLogJDBCStore/' + servername)
+        cmo.setEnabled(false)
+    else:
+        print '>>> Skipping ' + servername + ' since it is not a member of a cluster'
 
 # DEPLOY
 # WebLogic Server Base
@@ -149,6 +247,7 @@ updateDomain()
 closeDomain()
 
 # Modify settings after template deploys
+print
 print '>> Read domain from disk: ' + domain_name
 readDomain(domain_home)
 
@@ -190,14 +289,6 @@ for store in filestores:
 	name = store.getName()
 	store.setDirectory(os.getenv('DOMAIN_BASE') + '/' + os.getenv('DOMAIN_NAME') + '/resources/jms/' + name)
 
-print '>> Enabling WebLogic Plug-in on servers'
-cd('/')
-servers = cmo.getServers()
-for server in servers:
-	serverName=str(server.getName())
-	cd('/Servers/' + serverName)
-	cmo.setWeblogicPluginEnabled(java.lang.Boolean('true'))
-
 cd('/')
 print '>> Setting front end HTTP attributes'
 clusters = cmo.getClusters()
@@ -208,6 +299,41 @@ for cluster in clusters:
 	set('FrontendHTTPPort', 80)
 	set('FrontendHTTPSPort', 443)
 
+print '<< Writing updated domain to disk'
+updateDomain()
+closeDomain()
+
+# Additional post-creation configuration changes
+print
+print '>> Read domain from disk: ' + domain_name
+readDomain(domain_home)
+
+servers = cmo.getServers()
+print '>> Performing additional managed server configuration...'
+base_wkas = build_wkas()
+for server in servers:
+	servername = str(server.getName())
+	print '>>> Enabling WebLogic Plug-in on ' + servername
+	server.setWeblogicPluginEnabled(java.lang.Boolean('true'))
+	disable_hostname_verification(servername)
+	print '>> Updating all log configurations'
+	update_log_config(servername)
+	configure_tlogs(servername)
+	if 'SOA' in servername:
+		set_wka(servername, base_wkas)
+	
+print '>> Creating Log MBean for domain'
+cd('/')
+create(domain_name, 'Log')
+print '>>> Editing domain log configuration'
+cd('/Log/' + domain_name)
+cmo.setRotationType('byTime')
+cmo.setRotateLogOnStartup(false)
+cmo.setFileName(log_dir + '/' + domain_name + '.log')
+
+print '[!!] >> Logs will now be located at: ' + log_dir
+print '[!!] >> Transaction logs will now be located at: ' + tlog_loc + '/{Cluster_Name}/tlogs'
+	
 print '<< Writing updated domain to disk'
 updateDomain()
 print '> DOMAIN CREATE COMPLETE'

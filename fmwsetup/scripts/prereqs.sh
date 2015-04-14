@@ -158,7 +158,7 @@ if [[ -z $(sudo grep 7001 /etc/sysconfig/iptables) ]]; then
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16300 -j ACCEPT
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16000 -j ACCEPT
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 5556 -j ACCEPT
+	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport $NM_PORT -j ACCEPT
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
 	sudo bash -c "iptables-save > /etc/sysconfig/iptables"
 	[[ $? == 1 ]] && create_error ">> [FATAL] Firewall rules were not successfully saved."

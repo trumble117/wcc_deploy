@@ -11,6 +11,8 @@
 # 03/19/2015 - Added JOC configuration
 #			   Added logging configuration update
 # 03/23/2015 - Added NodeManager startup
+# 04/13/2015 - Moved domain edits to the create script
+#			   (should save a lot of time)
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
@@ -103,13 +105,24 @@ fi
 sed -i 's/.*export SUN_JAVA_HOME.*/&\n\nUSER_MEM_ARGS=\"-Xms32m -Xmx200m -XX:MaxPermSize=350m\"\nexport USER_MEM_ARGS/' $DOMAIN_HOME/bin/setDomainEnv.sh
 
 # Create logs directory
-mkdir -p $LOG_DIR
+[[ !-d $LOG_DIR ]] && mkdir -p $LOG_DIR
 
 # Pack/Unpack operations
 echo ">> Performing a pack/unpack..."
 punpack
 
-# Disable hostname verification
+# Disable hostname verification (depreciated)
+
+#cd $FMW_HOME/oracle_common/common/bin/
+#./wlst.sh $RESP_DIR/disable_hostname_verification.py
+
+# Configure log locations and rotation
+#./wlst.sh $RESP_DIR/update_logging.py
+
+# Configure persistent transaction log location
+#./wlst.sh $RESP_DIR/configure_tlogs.py
+
+# Startup Admin Server
 ADM_PID=$(ps -ef | grep weblogic.Name=AdminServer | grep -v grep | awk '{print $2}')
 if [[ ! $ADM_PID ]]; then
         echo "[WARNING] AdminServer must be running. Starting up..."
@@ -117,15 +130,6 @@ if [[ ! $ADM_PID ]]; then
         python ~/wls_scripts/servercontrol.py --start=admin
         [[ $? != "0" ]] && echo "[> Halting script execution <]" && exit 2
 fi
-
-cd $FMW_HOME/oracle_common/common/bin/
-./wlst.sh $RESP_DIR/disable_hostname_verification.py
-
-# Configure log locations and rotation
-./wlst.sh $RESP_DIR/update_logging.py
-
-# Configure persistent transaction log location
-./wlst.sh $RESP_DIR/configure_tlogs.py
 
 # Configure JOC using expect
 /usr/bin/expect << EOD
