@@ -105,7 +105,7 @@ fi
 sed -i 's/.*export SUN_JAVA_HOME.*/&\n\nUSER_MEM_ARGS=\"-Xms32m -Xmx200m -XX:MaxPermSize=350m\"\nexport USER_MEM_ARGS/' $DOMAIN_HOME/bin/setDomainEnv.sh
 
 # Create logs directory
-[[ !-d $LOG_DIR ]] && mkdir -p $LOG_DIR
+[[ ! -d $LOG_DIR ]] && mkdir -p $LOG_DIR
 
 # Pack/Unpack operations
 echo ">> Performing a pack/unpack..."

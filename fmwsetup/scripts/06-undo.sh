@@ -9,6 +9,7 @@
 # CHANGELOG
 # 03/17/2015 - Added SOA
 #			   Updated patch numbers
+# 04/14/2015 - Updated to April patchset for SOA
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
@@ -44,7 +45,10 @@ rollback_opatch
 # Patch SOA Suite
 echo ">> Unpatching Oracle SOA Suite"
 export ORACLE_HOME=$SOA_HOME
-$ORACLE_HOME/OPatch/opatch rollback -silent -invPtrLoc /etc/oraInst.loc -id 19953598
+$ORACLE_HOME/OPatch/opatch rollback -silent -invPtrLoc /etc/oraInst.loc -id 20423535
+rollback_opatch
+export ORACLE_HOME=$FMW_HOME/oracle_common
+$ORACLE_HOME/OPatch/opatch rollback -silent -invPtrLoc /etc/oraInst.loc -id 20423535
 rollback_opatch
 
 # Patch WebLogic

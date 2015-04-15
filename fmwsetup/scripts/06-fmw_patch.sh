@@ -36,7 +36,9 @@ echo ">> Starting patch process for Oracle SOA Suite"
 export ORACLE_HOME=$SOA_HOME
 patch_opatch
 # To get OCM response file, run $ORACLE_HOME/OPatch/ocm/bin/emocmrsp
-$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p19953598_111170_Generic.zip
+$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p20423535_111170_Generic.zip
+export ORACLE_HOME=$FMW_HOME/oracle_common
+$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p20423535_111170_Generic.zip
 
 # Patch Web Tier
 echo ">> Starting patch process for Oracle Web Tier"
@@ -55,13 +57,13 @@ echo ">> Starting patch process for WebLogic Server"
 export ORACLE_HOME=$WL_HOME
 BSU_DIR=$FMW_HOME/utils/bsu
 [[ ! -d $BSU_DIR/cache_dir ]] && mkdir $BSU_DIR/cache_dir
-[[ ! -d $BSU_DIR/cache_dir/12UV ]] && mkdir $BSU_DIR/cache_dir/12UV
-unzip -qo $STAGE_DIR/PATCHES/p19637463_1036_Generic.zip -d $BSU_DIR/cache_dir/12UV
+[[ ! -d $BSU_DIR/cache_dir/YUIS ]] && mkdir $BSU_DIR/cache_dir/YUIS
+unzip -qo $STAGE_DIR/PATCHES/p20181997_1036_Generic.zip -d $BSU_DIR/cache_dir/YUIS
 # Sometimes BSU will fail if the patch catalog name is left default
-cp $BSU_DIR/cache_dir/12UV/patch-catalog_22147.xml $BSU_DIR/cache_dir/12UV/patch-catalog.xml
+cp $BSU_DIR/cache_dir/YUIS/patch-catalog_22580.xml $BSU_DIR/cache_dir/YUIS/patch-catalog.xml
 # BSU won't run unless you run it from it's own directory
 cd $BSU_DIR
-$BSU_DIR/bsu.sh -install -patch_download_dir=$BSU_DIR/cache_dir/12UV -patchlist=12UV -prod_dir=$ORACLE_HOME
+$BSU_DIR/bsu.sh -install -patch_download_dir=$BSU_DIR/cache_dir/YUIS -patchlist=YUIS -prod_dir=$ORACLE_HOME
 
 # Include xdo report library in UCM application deployment
 echo ">> Modifying CS application deployment to include XDO runtime"

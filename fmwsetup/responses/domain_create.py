@@ -24,6 +24,7 @@ cluster_assignments = dict(UCM_Cluster='FMW_UCM1', URM_Cluster='FMW_URM1', CAP_C
 # Create key:value pairs for servers to be created and the machine on which they will run (correspond to listen addresses)
 machine_assignments = dict(FMW_UCM1='wccapp2', FMW_IBR1='wccapp2', FMW_URM1='wccapp2', FMW_CAP1='wccapp2', FMW_IPM1='wccapp2', FMW_SOA1='wccapp2')
 new_server_names = dict(UCM_server1='FMW_UCM1', IBR_server1='FMW_IBR1', URM_server1='FMW_URM1', capture_server1='FMW_CAP1', IPM_server1='FMW_IPM1', soa_server1='FMW_SOA1')
+server_list = ['FMW_UCM1','FMW_IBR1','FMW_URM1','FMW_IPM1','FMW_CAP1','FMW_CAP1']
 machine_listen_addresses = ['wccapp2']
 db_pw = 'welcome1'
 start_mode = 'dev'
@@ -49,6 +50,7 @@ db_prefix = os.getenv('SCHEMA_PREFIX') + '_'
 
 tlog_loc = os.getenv('DOMAIN_BASE') + "/" + os.getenv('DOMAIN_NAME') + "/resources/tlogs"
 log_dir = os.getenv('LOG_DIR')
+is_multinode = os.getenv('MULTINODE')
 
 # DEFINITIONS
 def create_machines():
@@ -232,11 +234,30 @@ for template in soa_template_list:
 print '>> Setting application directory: ' + app_dir
 setOption('AppDir', app_dir)
 
+cd('/')
+print 'Servers created by default: '
+original_servers = ls('/Server/')
 # Change server names
-print '>> Update server names'
+print '>> Update existing server names'
 for old, new in new_server_names.items():
-	update_server_name(old,new)
-	
+	if original_servers.find(old) != -1:
+		update_server_name(old,new)
+
+cd('/')
+print 'Servers currently in existence: '
+existing_servers = ls('/Server/')
+for mserver, port in server_list.items():
+	if existing_servers.find(mserver) == -1:
+		print ">>> Creating " + mserver
+		create(mserver, 'Server')
+		cd('/Server/' + mserver)
+		cmo.setListenPort(port)
+		cmo.setSSLListenPort(port+1)
+		#cmo.setListenPortEnabled(true)
+		cmo.setJavaCompiler('javac')
+		cmo.setClientCertProxyEnabled(false)
+		cd('/')
+
 # Create clusters
 print '>>> Create clusters and assign servers'
 for cname, cserver in cluster_assignments.items():
@@ -319,7 +340,7 @@ for server in servers:
 	print '>> Updating all log configurations'
 	update_log_config(servername)
 	configure_tlogs(servername)
-	if 'SOA' in servername:
+	if 'SOA' in servername and is_multinode:
 		set_wka(servername, base_wkas)
 	
 print '>> Creating Log MBean for domain'

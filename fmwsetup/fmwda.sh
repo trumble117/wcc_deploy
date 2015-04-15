@@ -225,6 +225,8 @@ echo
 echo "Now we need to match the servers to be deployed to the UNIX machine(s)"
 echo
 MACHINE_ASSIGNMENTS="dict("
+NEW_SERVER_NAMES="dict("
+SERVER_LIST="dict("
 if [[ $NUM_MACHINES -gt 1 ]]; then
 	MANAGED_SERVERS=(FMW_UCM1 FMW_UCM2 FMW_IBR1 FMW_IBR2 FMW_URM1 FMW_URM2 FMW_CAP1 FMW_CAP2 FMW_IPM1 FMW_IPM2 FMW_SOA1 FMW_SOA2)
 else
@@ -241,37 +243,77 @@ for SERVER in ${MANAGED_SERVERS[*]}; do
 		select MACHINE in ${MACHINE_LIST[*]}; do
 			MACHINE_ASSIGNMENTS="$MACHINE_ASSIGNMENTS$SERVER='$MACHINE'"
 			#[[ $SERVER == "FMW_UCM1" ]] && UCM_HOST=$MACHINE
-			case "$SERVER" in
-				*"UCM"*) [[ -n $UCMHOSTS ]] && UCMHOSTS=$UCMHOSTS,$MACHINE:16200
-						 [[ -z $UCMHOSTS ]] && UCMHOSTS=$MACHINE:16200
-						 ;;
-				*"SOA"*) [[ -n $SOA_HOSTNAMES ]]&& SOA_HOSTNAMES=$SOA_HOSTNAMES,$MACHINE
-						 [[ -z $SOA_HOSTNAMES ]] && SOA_HOSTNAMES=$MACHINE 
-						 [[ -n $SOAHOSTS ]] && SOAHOSTS=$SOAHOSTS,$MACHINE:8001
-						 [[ -z $SOAHOSTS ]] && SOAHOSTS=$MACHINE:8001
-						 ;;
-				*"IBR"*) [[ -n $IBRHOSTS ]] && IBRHOSTS=$IBRHOSTS,$MACHINE:16250
-						 [[ -z $IBRHOSTS ]] && IBRHOSTS=$MACHINE:16250
-						 ;;
-				*"URM"*) [[ -n $URMHOSTS ]] && URMHOSTS=$URMHOSTS,$MACHINE:16300
-						 [[ -z $URMHOSTS ]] && URMHOSTS=$MACHINE:16300
-						 ;;
-				*"CAP"*) [[ -n $CAPHOSTS ]] && CAPHOSTS=$CAPHOSTS,$MACHINE:16400
-						 [[ -z $CAPHOSTS ]] && CAPHOSTS=$MACHINE:16400
-						 ;;
-				*"IPM"*) [[ -n $IPMHOSTS ]] && IPMHOSTS=$IPMHOSTS,$MACHINE:16000
-						 [[ -z $IPMHOSTS ]] && IPMHOSTS=$MACHINE:16000
-						 ;;
-			esac
 			break
 		done
 	fi
+	case "$SERVER" in
+		*"UCM"*) [[ -n $UCMHOSTS ]] && UCMHOSTS=$UCMHOSTS,$MACHINE:16200
+				 [[ -z $UCMHOSTS ]] && UCMHOSTS=$MACHINE:16200
+				 UCMCOUNT=$(($UCMCOUNT+1))
+				 ORIG_NAME="UCM_server$UCMCOUNT"
+				 NEW_SERVER_NAMES="$NEW_SERVER_NAMES$ORIG_NAME='$SERVER'"
+				 [[ -n $UCMCLUS ]] && UCMCLUS="$UCMCLUS,$SERVER"
+				 [[ -z $UCMCLUS ]] && UCMCLUS="$SERVER"
+				 SERVER_LIST="$SERVER_LIST$SERVER=16200"
+				 ;;
+		*"SOA"*) [[ -n $SOA_HOSTNAMES ]]&& SOA_HOSTNAMES=$SOA_HOSTNAMES,$MACHINE
+				 [[ -z $SOA_HOSTNAMES ]] && SOA_HOSTNAMES=$MACHINE 
+				 [[ -n $SOAHOSTS ]] && SOAHOSTS=$SOAHOSTS,$MACHINE:8001
+				 [[ -z $SOAHOSTS ]] && SOAHOSTS=$MACHINE:8001
+				 SOACOUNT=$(($SOACOUNT+1))
+				 ORIG_NAME="soa_server$SOACOUNT"
+				 NEW_SERVER_NAMES="$NEW_SERVER_NAMES$ORIG_NAME='$SERVER'"
+				 [[ -n $SOACLUS ]] && SOACLUS="$SOACLUS,$SERVER"
+				 [[ -z $SOACLUS ]] && SOACLUS="$SERVER"
+				 SERVER_LIST="$SERVER_LIST$SERVER=8001"
+				 ;;
+		*"IBR"*) [[ -n $IBRHOSTS ]] && IBRHOSTS=$IBRHOSTS,$MACHINE:16250
+				 [[ -z $IBRHOSTS ]] && IBRHOSTS=$MACHINE:16250
+				 IBRCOUNT=$(($IBRCOUNT+1))
+				 ORIG_NAME="IBR_server$IBRCOUNT"
+				 NEW_SERVER_NAMES="$NEW_SERVER_NAMES$ORIG_NAME='$SERVER'"
+				 SERVER_LIST="$SERVER_LIST$SERVER=16250"
+				 ;;
+		*"URM"*) [[ -n $URMHOSTS ]] && URMHOSTS=$URMHOSTS,$MACHINE:16300
+				 [[ -z $URMHOSTS ]] && URMHOSTS=$MACHINE:16300
+				 URMCOUNT=$(($URMCOUNT+1))
+				 ORIG_NAME="URM_server$URMCOUNT"
+				 NEW_SERVER_NAMES="$NEW_SERVER_NAMES$ORIG_NAME='$SERVER'"
+				 [[ -n $URMCLUS ]] && URMCLUS="$URMCLUS,$SERVER"
+				 [[ -z $URMCLUS ]] && URMCLUS="$SERVER"
+				 SERVER_LIST="$SERVER_LIST$SERVER=16300"
+				 ;;
+		*"CAP"*) [[ -n $CAPHOSTS ]] && CAPHOSTS=$CAPHOSTS,$MACHINE:16400
+				 [[ -z $CAPHOSTS ]] && CAPHOSTS=$MACHINE:16400
+				 CAPCOUNT=$(($CAPCOUNT+1))
+				 ORIG_NAME="capture_server$CAPCOUNT"
+				 NEW_SERVER_NAMES="$NEW_SERVER_NAMES$ORIG_NAME='$SERVER'"
+				 [[ -n $CAPCLUS ]] && CAPCLUS="$CAPCLUS,$SERVER"
+				 [[ -z $CAPCLUS ]] && CAPCLUS="$SERVER"
+				 SERVER_LIST="$SERVER_LIST$SERVER=16400"
+				 ;;
+		*"IPM"*) [[ -n $IPMHOSTS ]] && IPMHOSTS=$IPMHOSTS,$MACHINE:16000
+				 [[ -z $IPMHOSTS ]] && IPMHOSTS=$MACHINE:16000
+				 IPMCOUNT=$(($IPMCOUNT+1))
+				 ORIG_NAME="IPM_server$IPMCOUNT"
+				 NEW_SERVER_NAMES="$NEW_SERVER_NAMES$ORIG_NAME='$SERVER'"
+				 [[ -n $IPMCLUS ]] && IPMCLUS="$IPMCLUS,$SERVER"
+				 [[ -z $IPMCLUS ]] && IPMCLUS="$SERVER"
+				 SERVER_LIST="$SERVER_LIST$SERVER=16000"
+				 ;;
+	esac
 	# If we're not at the end of the managed servers list, add a comma between entries
 	if [[ $SERVER != ${MANAGED_SERVERS[${#MANAGED_SERVERS[@]} - 1]} ]]; then
 		MACHINE_ASSIGNMENTS="$MACHINE_ASSIGNMENTS, "
+		NEW_SERVER_NAMES="$NEW_SERVER_NAMES, "
+		SERVER_LIST="$SERVER_LIST, "
 	fi
 done
 MACHINE_ASSIGNMENTS="$MACHINE_ASSIGNMENTS)"
+NEW_SERVER_NAMES="$NEW_SERVER_NAMES)"
+SERVER_LIST="$SERVER_LIST)"
+
+CLUSTER_MEMBERSHIP="dict(UCM_Cluster='$UCMCLUS', URM_Cluster='$URMCLUS', IPM_Cluster='$IPMCLUS', CAP_Cluster='$CAPCLUS', SOA_Cluster='$SOACLUS')"
 
 echo
 echo "< Backing up old file"
@@ -280,6 +322,9 @@ echo "> Writing responses to file: $MEDIA_BASE/responses/domain_create.py"
 # WRITE TO FILE
 sed -i "s|machine_listen_addresses =.*|machine_listen_addresses = $MACHINE_ADDRESSES|g" $MEDIA_BASE/responses/domain_create.py
 sed -i "s|machine_assignments =.*|machine_assignments = $MACHINE_ASSIGNMENTS|g" $MEDIA_BASE/responses/domain_create.py
+sed -i "s|new_server_names =.*|new_server_names = $NEW_SERVER_NAMES|g" $MEDIA_BASE/responses/domain_create.py
+sed -i "s|server_list =.*|server_list = $SERVER_LIST|g" $MEDIA_BASE/responses/domain_create.py
+sed -i "s|cluster_assignments =.*|cluster_assignments = $CLUSTER_MEMBERSHIP|g" $MEDIA_BASE/responses/domain_create.py
 sed -i "s|db_pw =.*|db_pw = '$SCHEMA_PW'|g" $MEDIA_BASE/responses/domain_create.py
 #sed -i "s|UCM_HOST=.*|UCM_HOST=$UCM_HOST|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|SOA_HOSTNAMES=.*|SOA_HOSTNAMES=$SOA_HOSTNAMES|g" $MEDIA_BASE/scripts/setScriptEnv.sh
