@@ -83,11 +83,11 @@ def create_machines():
 		delete('LocalMachine','Machine')
 
 def create_cluster(cluster_name):
-    print '>>> Create cluster: ' + cluster_name
-    cluster = create(cluster_name, 'Cluster')
-    cluster.setClusterMessagingMode('unicast')
-    cluster.setWeblogicPluginEnabled(java.lang.Boolean('true'))
-    #return cluster;
+	cd('/')
+	print '>>> Create cluster: ' + cluster_name
+	cluster = create(cluster_name, 'Cluster')
+	cluster.setClusterMessagingMode('unicast')
+	cluster.setWeblogicPluginEnabled(java.lang.Boolean('true'))
 
 def create_assign_cluster(cluster_name):
 	create_cluster(cluster_name)
@@ -133,14 +133,17 @@ def set_wka(servername, base_wkas):
 	new_wkas = base_wkas + ' -Dtangosol.coherence.localhost=' + machine_assignments[servername]
 	set ('Arguments', new_wkas)
 	
-def disable_hostname_verification(servername):
+def setup_ssl(servername, port):
 	print '>> Creating SSL MBean for ' + servername
 	cd('/Server/' + servername)
 	create(servername,'SSL')
-	print '>>> Disabling hostname verification for ' + servername
+	print '>>> Disabling hostname verification and setting other SSL values for ' + servername
 	cd('SSL/' + servername)
-	cmo.setHostnameVerificationIgnored(java.lang.Boolean('true'))
+	cmo.setListenPort(port)
 	cmo.setHostnameVerifier('null')
+	cmo.setEnabled(false)
+	cmo.setHostnameVerificationIgnored(java.lang.Boolean('true'))
+
 
 #def enable_weblogic_plugin(servername):
 #	print '>>> Enabling WebLogic Plug-in on ' + servername
@@ -180,7 +183,7 @@ def update_log_config(servername):
     cmo.setFileName(log_dir + '/' + servername + '/datasource.log')
 
 def configure_tlogs(servername):
-    cd('/Servers/' + servername)
+    cd('/Server/' + servername)
     if cmo.getCluster() != None:
     	print '>>> Updating transaction log configuration for ' + servername
         cluster = cmo.getCluster().getName()
@@ -188,19 +191,122 @@ def configure_tlogs(servername):
         cmo.setXMLRegistry(None)
         cmo.setXMLEntityCache(None)
         
-        cd('/Servers/' + servername)
+        cd('/Server/' + servername)
         print '>>> Creating DefaultFileStore MBean for ' + servername
         create(servername,'DefaultFileStore')
         cd('DefaultFileStore/' + servername)
         cmo.setDirectory(tlog_loc + '/' + cluster + '/tlogs')
         
-        cd('/Servers/' + servername)
+        cd('/Server/' + servername)
         print '>>> Creating TransactionLogJDBCStore MBean for ' + servername
         create(servername,'TransactionLogJDBCStore')
         cd('TransactionLogJDBCStore/' + servername)
         cmo.setEnabled(false)
     else:
         print '>>> Skipping ' + servername + ' since it is not a member of a cluster'
+
+def createServer(wls, name):
+  wls.cd("/")
+  wls.create(name, 'Server')    
+
+
+######################################################################
+# Checks if given bean exists
+######################################################################
+def beanExists(wls, path, name):
+  print ">> Checking if bean: '" + name + "' exists in path: '" + path + "'"
+  wls.cd(path)
+  wls.setShowLSResult(0)  
+  beans = wls.ls('c', 'false', 'c')
+  wls.setShowLSResult(1)  
+  if (beans.find(name) != -1):
+    print ">>> Exists"  
+    return 1
+  else:
+    print ">>> Doesn't exist"  
+    return 0
+
+
+######################################################################
+# Copy bean properties in offline mode.
+######################################################################
+def copyProperties(wls, originalBeanName, originalBeanPath, newBeanName, newBeanPath, ignoredProperties):
+
+  wls.getCommandExceptionHandler().setMode(1)
+  wls.getRuntimeEnv().set('exitonerror', 'true')
+
+  srcPath = originalBeanPath + "/" + originalBeanName
+  targetPath =  newBeanPath + "/" + newBeanName
+
+  print ">>> Copying properties from '" + srcPath + "' to '" + targetPath + "'"  
+  wls.cd(srcPath)
+
+  wls.setShowLSResult(0)
+  attributes = wls.ls('a', 'true', 'a')
+  children = wls.ls('c', 'true', 'c')
+  wls.setShowLSResult(1)
+
+  # Copy attributes.
+  wls.cd(targetPath)
+  for entry in attributes.entrySet(): 
+    k = entry.key
+    v = entry.value  
+    if not(k in ignoredProperties) and not(v is None) and not(v == ''):
+      if k == 'Name' and v == originalBeanName:
+      	print ">>>> Setting property '" + str(k) + "' = '" + newBeanName + "' on '" + targetPath + "'"
+      	wls.set(k, newBeanName)
+      else:
+      	print ">>>> Setting property '" + str(k) + "' = '" + str(v) + "' on '" + targetPath + "'"
+      	if isinstance(v, StringType):
+	       wls.set(k, v.replace(originalBeanName, newBeanName))
+        else:
+	       wls.set(k, v)
+
+  # Copy child bean values.
+  for k in children:
+    if not(k in ignoredProperties):
+      srcBN = srcPath + "/" + k    
+      targetBN = targetPath + "/" + k
+      print ">>> Copying bean '" + srcBN + "/" + originalBeanName + "'"
+      print ">>> Detected bean type as '" + k + "'"
+      if beanExists(wls, srcBN, "NO_NAME_0"):      
+        print ">>> Changing to NO_NAME_0"
+        originalBeanName = "NO_NAME_0"
+        newBeanName = "NO_NAME_0"
+      wls.cd(targetPath)        
+      wls.create(newBeanName, k)  
+      copyProperties(wls, originalBeanName, srcBN, newBeanName, targetBN, ignoredProperties)
+
+def setup_ibr_deployments(new_name):
+	cd('/')
+	appdeployments = cmo.getAppDeployments()
+	find_add_targets(new_name, appdeployments, 'AppDeployment')
+	cd('/')
+	libdeployments = cmo.getLibraries()
+	find_add_targets(new_name, libdeployments, 'Library')
+	
+def find_add_targets(servername, mbean_list ,type):
+	for item in mbean_list:
+		cd('/' + type + '/' + item.getName())
+		targets = get('Target')
+		has_ibr = 0
+		if not(targets is None) and not(targets == ''):
+			for target in targets:
+				if 'IBR' in target.getName():
+					has_ibr = 1
+		if has_ibr:
+			print '>>> Adding ' + servername + ' to ' + type + ' for ' + item.getName()
+			# Build list of current server assingnments
+			target_list = ''
+			for target in targets:
+				target_list = target_list + target.getName() + ', '
+			target_list = target_list + servername
+			assign(type, item.getName(), 'Target', target_list)
+
+def enable_wl_plugin(servername):
+	cd ('/Server/' + servername)
+	print '>>> Enabling WebLogic Plug-in on ' + servername
+	cmo.setWeblogicPluginEnabled(java.lang.Boolean('true'))
 
 # DEPLOY
 # WebLogic Server Base
@@ -235,7 +341,7 @@ print '>> Setting application directory: ' + app_dir
 setOption('AppDir', app_dir)
 
 cd('/')
-print 'Servers created by default: '
+WLS.setShowLSResult(0)
 original_servers = ls('/Server/')
 # Change server names
 print '>> Update existing server names'
@@ -243,20 +349,45 @@ for old, new in new_server_names.items():
 	if original_servers.find(old) != -1:
 		update_server_name(old,new)
 
+# If I don't do this, an error is thrown...?
+print '< Saving changes to disk... '
+updateDomain()
+closeDomain()
+
+# Modify settings after template deploys
+print
+print '>> Read domain from disk: ' + domain_name
+readDomain(domain_home)
+
 cd('/')
-print 'Servers currently in existence: '
+print '>> Unset any assingned machines to existing servers'
+servers = cmo.getServers()
+for server in servers:
+	cd('/Server/' + str(server.getName()))
+	if cmo.getMachine():
+		cmo.setMachine(None)
+
+cd('/')
+WLS.setShowLSResult(0)
 existing_servers = ls('/Server/')
 for mserver, port in server_list.items():
 	if existing_servers.find(mserver) == -1:
-		print ">>> Creating " + mserver
-		create(mserver, 'Server')
-		cd('/Server/' + mserver)
-		cmo.setListenPort(port)
-		cmo.setSSLListenPort(port+1)
-		#cmo.setListenPortEnabled(true)
-		cmo.setJavaCompiler('javac')
-		cmo.setClientCertProxyEnabled(false)
-		cd('/')
+		print ">> Creating " + mserver
+		source_name = mserver[:-1]+"1"
+		createServer(WLS, mserver)
+		copyProperties(WLS, source_name, '/Servers', mserver, '/Servers', ['SSL'])
+		if 'IBR' in mserver:
+			print '>> Copying Library and Application deployments to new IBR server'
+			setup_ibr_deployments(mserver)
+		print '>> Performing SSL configuration'
+		setup_ssl(mserver, port+1)
+		print '>> Updating all log configurations'
+		update_log_config(mserver)
+		configure_tlogs(mserver)
+
+setup_ssl('AdminServer')
+update_log_config('AdminServer')
+configure_tlogs('AdminServer')
 
 # Create clusters
 print '>>> Create clusters and assign servers'
@@ -267,7 +398,7 @@ print '<< Writing updated domain to disk'
 updateDomain()
 closeDomain()
 
-# Modify settings after template deploys
+# Modify settings after initial server setup
 print
 print '>> Read domain from disk: ' + domain_name
 readDomain(domain_home)
@@ -330,16 +461,17 @@ print '>> Read domain from disk: ' + domain_name
 readDomain(domain_home)
 
 servers = cmo.getServers()
-print '>> Performing additional managed server configuration...'
+#print '>> Performing additional managed server configuration...'
 base_wkas = build_wkas()
 for server in servers:
 	servername = str(server.getName())
-	print '>>> Enabling WebLogic Plug-in on ' + servername
-	server.setWeblogicPluginEnabled(java.lang.Boolean('true'))
-	disable_hostname_verification(servername)
-	print '>> Updating all log configurations'
-	update_log_config(servername)
-	configure_tlogs(servername)
+	#print '>>> Enabling WebLogic Plug-in on ' + servername
+	#server.setWeblogicPluginEnabled(java.lang.Boolean('true'))
+	#disable_hostname_verification(servername)
+	#print '>> Updating all log configurations'
+	#update_log_config(servername)
+	#configure_tlogs(servername)
+	print '>> Setting coherence configuration for SOA nodes'
 	if 'SOA' in servername and is_multinode:
 		set_wka(servername, base_wkas)
 	
