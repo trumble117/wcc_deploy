@@ -8,6 +8,8 @@
 #
 # CHANGELOG
 # 03/02/2015 - Added SOA, Updated Patch Registry
+# 04/17/2015 - Fixed bug: iptables still denying traffic, particularly
+#			   to nodemanager. Due to DENY ALL above all custom port rules
 
 create_error () {
 	echo "$1"
@@ -149,6 +151,7 @@ fi
 if [[ -z $(sudo grep 7001 /etc/sysconfig/iptables) ]]; then
 	echo ">> Modifying firewall configuration"
 	sudo bash -c "iptables-save > /etc/sysconfig/iptables-BAK"
+	sudo iptables -D INPUT -j REJECT --reject-with icmp-host-prohibited
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 7001 -j ACCEPT
@@ -160,6 +163,7 @@ if [[ -z $(sudo grep 7001 /etc/sysconfig/iptables) ]]; then
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001 -j ACCEPT
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport $NM_PORT -j ACCEPT
 	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
+	sudo iptables -A INPUT -j REJECT --reject-with icmp-host-prohibited
 	sudo bash -c "iptables-save > /etc/sysconfig/iptables"
 	[[ $? == 1 ]] && create_error ">> [FATAL] Firewall rules were not successfully saved."
 else
