@@ -12,6 +12,9 @@
 # 04/13/2015 - Moved all post-creation domain configuration
 #              into this script
 #              Added SOA tangosol configuration
+# 04/17/2015 - Now dynamically creates additional servers
+#			   Copies configuration and deployments from
+#			   original servers
 
 import os, sys
 
@@ -24,7 +27,7 @@ cluster_assignments = dict(UCM_Cluster='FMW_UCM1', URM_Cluster='FMW_URM1', CAP_C
 # Create key:value pairs for servers to be created and the machine on which they will run (correspond to listen addresses)
 machine_assignments = dict(FMW_UCM1='wccapp2', FMW_IBR1='wccapp2', FMW_URM1='wccapp2', FMW_CAP1='wccapp2', FMW_IPM1='wccapp2', FMW_SOA1='wccapp2')
 new_server_names = dict(UCM_server1='FMW_UCM1', IBR_server1='FMW_IBR1', URM_server1='FMW_URM1', capture_server1='FMW_CAP1', IPM_server1='FMW_IPM1', soa_server1='FMW_SOA1')
-server_list = ['FMW_UCM1','FMW_IBR1','FMW_URM1','FMW_IPM1','FMW_CAP1','FMW_CAP1']
+server_list = dict(FMW_UCM1=16200,FMW_IBR1=16250,FMW_URM1=16300,FMW_IPM1=16000,FMW_CAP1=16400,FMW_SOA1=8001)
 machine_listen_addresses = ['wccapp2']
 db_pw = 'welcome1'
 start_mode = 'dev'
@@ -77,6 +80,7 @@ def create_machines():
 					print '>>>> Assigning ' + server.getName() + ' to ' + machine.getName()
 					server.setMachine(machine)
 	cd('/')
+	wls.setShowLSResult(0)
 	machines = ls('/Machine/')
 	if machines.find('LocalMachine') != -1:
 		print ">>> Deleting LocalMachine"
@@ -87,7 +91,7 @@ def create_cluster(cluster_name):
 	print '>>> Create cluster: ' + cluster_name
 	cluster = create(cluster_name, 'Cluster')
 	cluster.setClusterMessagingMode('unicast')
-	cluster.setWeblogicPluginEnabled(java.lang.Boolean('true'))
+	cluster.setWeblogicPluginEnabled(true)
 
 def create_assign_cluster(cluster_name):
 	create_cluster(cluster_name)
@@ -139,16 +143,17 @@ def setup_ssl(servername, port):
 	create(servername,'SSL')
 	print '>>> Disabling hostname verification and setting other SSL values for ' + servername
 	cd('SSL/' + servername)
+	cmo.setEnabled(true)
 	cmo.setListenPort(port)
 	cmo.setHostnameVerifier('null')
 	cmo.setEnabled(false)
-	cmo.setHostnameVerificationIgnored(java.lang.Boolean('true'))
+	cmo.setHostnameVerificationIgnored(true)
 
 
 #def enable_weblogic_plugin(servername):
 #	print '>>> Enabling WebLogic Plug-in on ' + servername
 #	cd('/Server/' + servername)
-#	cmo.setWeblogicPluginEnabled(java.lang.Boolean('true'))
+#	cmo.setWeblogicPluginEnabled(true)
 
 def update_log_config(servername):
     cd('/Server/' + servername)
@@ -306,7 +311,7 @@ def find_add_targets(servername, mbean_list ,type):
 def enable_wl_plugin(servername):
 	cd ('/Server/' + servername)
 	print '>>> Enabling WebLogic Plug-in on ' + servername
-	cmo.setWeblogicPluginEnabled(java.lang.Boolean('true'))
+	cmo.setWeblogicPluginEnabled(true)
 
 # DEPLOY
 # WebLogic Server Base
@@ -379,15 +384,14 @@ for mserver, port in server_list.items():
 		if 'IBR' in mserver:
 			print '>> Copying Library and Application deployments to new IBR server'
 			setup_ibr_deployments(mserver)
-		print '>> Performing SSL configuration'
-		setup_ssl(mserver, port+1)
-		print '>> Updating all log configurations'
-		update_log_config(mserver)
-		configure_tlogs(mserver)
+	print '>> Performing SSL configuration'
+	setup_ssl(mserver, port+1)
+	print '>> Updating all log configurations'
+	update_log_config(mserver)
+	configure_tlogs(mserver)
 
-setup_ssl('AdminServer')
+setup_ssl('AdminServer', 7002)
 update_log_config('AdminServer')
-configure_tlogs('AdminServer')
 
 # Create clusters
 print '>>> Create clusters and assign servers'
@@ -460,19 +464,20 @@ print
 print '>> Read domain from disk: ' + domain_name
 readDomain(domain_home)
 
+# Update coherence settings for SOA
 servers = cmo.getServers()
 #print '>> Performing additional managed server configuration...'
 base_wkas = build_wkas()
 for server in servers:
 	servername = str(server.getName())
 	#print '>>> Enabling WebLogic Plug-in on ' + servername
-	#server.setWeblogicPluginEnabled(java.lang.Boolean('true'))
+	#server.setWeblogicPluginEnabled(true)
 	#disable_hostname_verification(servername)
 	#print '>> Updating all log configurations'
 	#update_log_config(servername)
 	#configure_tlogs(servername)
-	print '>> Setting coherence configuration for SOA nodes'
 	if 'SOA' in servername and is_multinode:
+		print '>> Configuring coherence for SOA nodes'
 		set_wka(servername, base_wkas)
 	
 print '>> Creating Log MBean for domain'

@@ -108,7 +108,7 @@ elif [[ $MULTINODE == 1 ]]; then
 fi
 echo ">> Directory permissions checks passed."
 
-sudo yum install -y $STAGE_DIR/jdk-7u71-linux-x64.rpm
+sudo yum install -y $STAGE_DIR/jdk-7u80-linux-x64.rpm
 export PATH=$PATH:$JAVA_HOME/bin
 
 # Test if all server hostnames are resolvable
