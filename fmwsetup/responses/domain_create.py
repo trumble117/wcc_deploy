@@ -80,7 +80,7 @@ def create_machines():
 					print '>>>> Assigning ' + server.getName() + ' to ' + machine.getName()
 					server.setMachine(machine)
 	cd('/')
-	wls.setShowLSResult(0)
+	WLS.setShowLSResult(0)
 	machines = ls('/Machine/')
 	if machines.find('LocalMachine') != -1:
 		print ">>> Deleting LocalMachine"
