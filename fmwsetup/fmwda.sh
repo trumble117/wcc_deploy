@@ -13,6 +13,8 @@
 # 04/13/2015 - Streamlined to assume more information 
 #			   and ask fewer questions for single node 
 #			   deployments
+# 06/17/2015 - Added WSMPM resources (separated from SOA,
+#			   per documentation recommendation).
 
 
 [[ ! -e scripts/setScriptEnv.sh ]] && echo "Something's not right, setScriptEnv.sh does not exist in the scripts directory. Exiting..." && exit 2
@@ -228,9 +230,9 @@ MACHINE_ASSIGNMENTS="dict("
 NEW_SERVER_NAMES="dict("
 SERVER_LIST="dict("
 if [[ $NUM_MACHINES -gt 1 ]]; then
-	MANAGED_SERVERS=(FMW_UCM1 FMW_UCM2 FMW_IBR1 FMW_IBR2 FMW_URM1 FMW_URM2 FMW_CAP1 FMW_CAP2 FMW_IPM1 FMW_IPM2 FMW_SOA1 FMW_SOA2)
+	MANAGED_SERVERS=(FMW_UCM1 FMW_UCM2 FMW_IBR1 FMW_IBR2 FMW_URM1 FMW_URM2 FMW_CAP1 FMW_CAP2 FMW_IPM1 FMW_IPM2 FMW_SOA1 FMW_SOA2 FMW_WSMPM1 FMW_WSMPM2)
 else
-	MANAGED_SERVERS=(FMW_UCM1 FMW_IBR1 FMW_URM1 FMW_CAP1 FMW_IPM1 FMW_SOA1)
+	MANAGED_SERVERS=(FMW_UCM1 FMW_IBR1 FMW_URM1 FMW_CAP1 FMW_IPM1 FMW_SOA1 FMW_WSMPM1)
 fi
 for SERVER in ${MANAGED_SERVERS[*]}; do
 	if [[ NUM_MACHINES -eq 1 ]]; then
@@ -301,19 +303,30 @@ for SERVER in ${MANAGED_SERVERS[*]}; do
 				 [[ -z $IPMCLUS ]] && IPMCLUS="$SERVER"
 				 SERVER_LIST="$SERVER_LIST$SERVER=16000"
 				 ;;
+		*"WSMPM"*) [[ -n $WSMHOSTS ]] && WSMHOSTS=$WSMHOSTS,$MACHINE:7010
+				[[ -z $WSMHOSTS ]] && WSMHOSTS=$MACHINE:7010
+				 WSMCOUNT=$(($WSMCOUNT+1))
+				 ORIG_NAME="WSM_server$WSMCOUNT"
+				 #NEW_SERVER_NAMES="$NEW_SERVER_NAMES$ORIG_NAME='$SERVER'"
+				 [[ -n $WSMCLUS ]] && WSMCLUS="$WSMCLUS,$SERVER"
+				 [[ -z $WSMCLUS ]] && WSMCLUS="$SERVER"
+				 SERVER_LIST="$SERVER_LIST$SERVER=7010"
+				 ;;
 	esac
 	# If we're not at the end of the managed servers list, add a comma between entries
-	if [[ $SERVER != ${MANAGED_SERVERS[${#MANAGED_SERVERS[@]} - 1]} ]]; then
+if [[ $SERVER != ${MANAGED_SERVERS[${#MANAGED_SERVERS[@]} - 1]} ]]; then
 		MACHINE_ASSIGNMENTS="$MACHINE_ASSIGNMENTS, "
-		NEW_SERVER_NAMES="$NEW_SERVER_NAMES, "
 		SERVER_LIST="$SERVER_LIST, "
+		if  [[ $SERVER != *"WSMPM"* ]]; then
+			NEW_SERVER_NAMES="$NEW_SERVER_NAMES, "
+		fi
 	fi
 done
 MACHINE_ASSIGNMENTS="$MACHINE_ASSIGNMENTS)"
 NEW_SERVER_NAMES="$NEW_SERVER_NAMES)"
 SERVER_LIST="$SERVER_LIST)"
 
-CLUSTER_MEMBERSHIP="dict(UCM_Cluster='$UCMCLUS', URM_Cluster='$URMCLUS', IPM_Cluster='$IPMCLUS', CAP_Cluster='$CAPCLUS', SOA_Cluster='$SOACLUS')"
+CLUSTER_MEMBERSHIP="dict(UCM_Cluster='$UCMCLUS', URM_Cluster='$URMCLUS', IPM_Cluster='$IPMCLUS', CAP_Cluster='$CAPCLUS', SOA_Cluster='$SOACLUS', WSMPM_Cluster='$WSMCLUS')"
 
 echo
 echo "< Backing up old file"
@@ -344,6 +357,7 @@ sed -i "s|SOAHOSTS=.*|SOAHOSTS=$SOAHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|URMHOSTS=.*|URMHOSTS=$URMHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|IPMHOSTS=.*|IPMHOSTS=$IPMHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|CAPHOSTS=.*|CAPHOSTS=$CAPHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|WSMHOSTS=.*|CAPHOSTS=$WSMHOSTS|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 
 WT_INSTANCE_HOME=$DOMAIN_BASE/$OHS_INSTANCE_NAME
 ECM_HOME=$FMW_HOME/Oracle_ECM1

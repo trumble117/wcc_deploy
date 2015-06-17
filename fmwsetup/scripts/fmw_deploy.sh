@@ -9,6 +9,9 @@
 #		+ "Next" option
 #		Add batching
 #		+ "All" option
+# CHANGELOG
+# 06/17/2015 - Added WSMPM resources (separated from SOA,
+#			   per documentation recommendation).
 
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $MY_DIR

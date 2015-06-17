@@ -15,6 +15,11 @@
 # 04/17/2015 - Now dynamically creates additional servers
 #			   Copies configuration and deployments from
 #			   original servers
+# 06/17/2015 - Added WSMPM resources (separated from SOA,
+#			   per documentation recommendation).
+#              Moved tlog configuration to after Cluster
+#			   creation, since the clusters have to first
+#			   exist
 
 import os, sys
 
@@ -22,19 +27,29 @@ import os, sys
 ucm_cluster_name = 'UCM_Cluster' 		# Used for XDO assignment later
 ipm_cluster_name = 'IPM_Cluster'
 soa_cluster_name = 'SOA_Cluster'
+wsm_cluster_name = 'WSMPM_Cluster'
 # Comma-separate server assignments to clusters
-cluster_assignments = dict(UCM_Cluster='FMW_UCM1', URM_Cluster='FMW_URM1', CAP_Cluster='FMW_CAP1', IPM_Cluster='FMW_IPM1', SOA_Cluster='FMW_SOA1')
+cluster_assignments = dict(UCM_Cluster='FMW_UCM1', URM_Cluster='FMW_URM1', CAP_Cluster='FMW_CAP1', IPM_Cluster='FMW_IPM1', SOA_Cluster='FMW_SOA1', WSMPM_Cluster='FMW_WSMPM1')
 # Create key:value pairs for servers to be created and the machine on which they will run (correspond to listen addresses)
-machine_assignments = dict(FMW_UCM1='wccapp2', FMW_IBR1='wccapp2', FMW_URM1='wccapp2', FMW_CAP1='wccapp2', FMW_IPM1='wccapp2', FMW_SOA1='wccapp2')
+machine_assignments = dict(FMW_UCM1='wccapp2', FMW_IBR1='wccapp2', FMW_URM1='wccapp2', FMW_CAP1='wccapp2', FMW_IPM1='wccapp2', FMW_SOA1='wccapp2', FMW_WSMPM='wccapp2')
 new_server_names = dict(UCM_server1='FMW_UCM1', IBR_server1='FMW_IBR1', URM_server1='FMW_URM1', capture_server1='FMW_CAP1', IPM_server1='FMW_IPM1', soa_server1='FMW_SOA1')
-server_list = dict(FMW_UCM1=16200,FMW_IBR1=16250,FMW_URM1=16300,FMW_IPM1=16000,FMW_CAP1=16400,FMW_SOA1=8001)
+server_list = dict(FMW_UCM1=16200,FMW_IBR1=16250,FMW_URM1=16300,FMW_IPM1=16000,FMW_CAP1=16400,FMW_SOA1=8001,FMW_WSMPM=7010)
 machine_listen_addresses = ['wccapp2']
 db_pw = 'welcome1'
 start_mode = 'dev'
 
 # Templates
-ucm_template_list = ['oracle.ucm.core_template_11.1.1.jar','oracle.ucm.cs_template_11.1.1.jar','oracle.ucm.ibr_template_11.1.1.jar','oracle.ucm.urm_template_11.1.1.jar','oracle.capture_template_11.1.1.jar','oracle.ipm_template_11.1.1.jar']
-soa_template_list = ['oracle.soa_template_11.1.1.jar']
+ucm_template_list = ['oracle.ucm.cs_template_11.1.1.jar',
+'oracle.ucm.urm_template_11.1.1.jar',
+'oracle.ipm_template_11.1.1.jar',
+'oracle.emai_ibr_template_11.1.1.jar',
+'oracle.capture_template_11.1.1.jar',
+'oracle.ucm.ibr_template_11.1.1.jar']
+soa_template_list = ['oracle.soa_template_11.1.1.jatesr']
+common_template_list = ['jrf_template_11.1.1.jar',
+'oracle.em_11_1_1_0_0_template.jar',
+'oracle.wsmpm_template_11.1.1.jar',
+'oracle.applcore.model.stub.11.1.1_template.jar']
 
 # Grab environment variables
 app_dir = os.getenv('DOMAIN_BASE') + '/' + os.getenv('DOMAIN_NAME') + '/aserver/applications'
@@ -44,6 +59,7 @@ domain_home = os.getenv('DOMAIN_HOME')
 domain_name = os.getenv('DOMAIN_NAME')
 ucm_templates = os.getenv('ECM_HOME') + '/common/templates/applications/'
 soa_templates = os.getenv('SOA_HOME') + '/common/templates/applications/'
+common_templates = os.getenv('FMW_HOME') + '/oracle_common/common/templates/applications/'
 wls_template = os.getenv('WL_HOME') + '/common/templates/domains/wls.jar'
 admin_pw = os.getenv('ADMIN_PW')
 frontend_host = os.getenv('LOAD_BAL_ADDR')
@@ -73,7 +89,7 @@ def create_machines():
 		print '>>> Created UNIX Machine: ' + machine.getName()
 		for server in servers:
 			if server.getName() == 'AdminServer':
-				print '>>>> Encountered AdminServer, skipping machine assingnment'
+				print '>>>> Encountered AdminServer, skipping machine assignment'
 			else:
 				cur_server = machine_assignments[server.getName()]
 				if cur_server == machine_listen_addresses[i]:
@@ -214,6 +230,12 @@ def createServer(wls, name):
   wls.cd("/")
   wls.create(name, 'Server')    
 
+def createServerPort(wls, name, port):
+  wls.cd("/")
+  wls.create(name, 'Server')
+  cd("/Server/" + name)
+  set('ListenPort', port)
+
 
 ######################################################################
 # Checks if given bean exists
@@ -301,7 +323,7 @@ def find_add_targets(servername, mbean_list ,type):
 					has_ibr = 1
 		if has_ibr:
 			print '>>> Adding ' + servername + ' to ' + type + ' for ' + item.getName()
-			# Build list of current server assingnments
+			# Build list of current server assignments
 			target_list = ''
 			for target in targets:
 				target_list = target_list + target.getName() + ', '
@@ -317,6 +339,9 @@ def enable_wl_plugin(servername):
 # WebLogic Server Base
 print '>> Read template: ' + wls_template
 readTemplate(wls_template)
+for template in common_template_list:
+	print '>> Adding template: ' + common_templates + template
+	addTemplate(common_templates + template)
 setOption('AppDir', app_dir)
 setOption('DomainName', domain_name)
 setOption('OverwriteDomain', 'true')
@@ -330,7 +355,21 @@ print '<< Writing base domain to disk'
 writeDomain(domain_home)
 closeTemplate()
 
-# Add product-specific domain extensions
+# Add SOA-specific domain extensions
+print '>> Read domain from disk: ' + domain_name
+readDomain(domain_home)
+
+for template in soa_template_list:
+	print '>> Adding template: ' + soa_templates + template
+	addTemplate(soa_templates + template)
+print '>> Setting application directory: ' + app_dir
+setOption('AppDir', app_dir)
+
+print '<< Writing SOA-extended domain to disk'
+updateDomain()
+closeTemplate()
+	
+# Add UCM-specific domain extensions
 print '>> Read domain from disk: ' + domain_name
 readDomain(domain_home)
 
@@ -338,9 +377,16 @@ readDomain(domain_home)
 for template in ucm_template_list:
 	print '>> Adding template: ' + ucm_templates + template
 	addTemplate(ucm_templates + template)
-for template in soa_template_list:
-	print '>> Adding template: ' + soa_templates + template
-	addTemplate(soa_templates + template)
+print '>> Setting application directory: ' + app_dir
+setOption('AppDir', app_dir)
+
+print '<< Writing UCM-extended domain to disk'
+updateDomain()
+closeTemplate()
+
+# Perform necessary domain modifications
+print '>> Read domain from disk: ' + domain_name
+readDomain(domain_home)
 	
 print '>> Setting application directory: ' + app_dir
 setOption('AppDir', app_dir)
@@ -365,7 +411,7 @@ print '>> Read domain from disk: ' + domain_name
 readDomain(domain_home)
 
 cd('/')
-print '>> Unset any assingned machines to existing servers'
+print '>> Unset any assigned machines to existing servers'
 servers = cmo.getServers()
 for server in servers:
 	cd('/Server/' + str(server.getName()))
@@ -379,8 +425,11 @@ for mserver, port in server_list.items():
 	if existing_servers.find(mserver) == -1:
 		print ">> Creating " + mserver
 		source_name = mserver[:-1]+"1"
-		createServer(WLS, mserver)
-		copyProperties(WLS, source_name, '/Servers', mserver, '/Servers', ['SSL'])
+		if existing_servers.find(source_name) != -1:
+			createServer(WLS, mserver)
+			copyProperties(WLS, source_name, '/Servers', mserver, '/Servers', ['SSL'])
+		else:
+			createServerPort(WLS, mserver, port)
 		if 'IBR' in mserver:
 			print '>> Copying Library and Application deployments to new IBR server'
 			setup_ibr_deployments(mserver)
@@ -388,7 +437,6 @@ for mserver, port in server_list.items():
 	setup_ssl(mserver, port+1)
 	print '>> Updating all log configurations'
 	update_log_config(mserver)
-	configure_tlogs(mserver)
 
 setup_ssl('AdminServer', 7002)
 update_log_config('AdminServer')
@@ -397,6 +445,10 @@ update_log_config('AdminServer')
 print '>>> Create clusters and assign servers'
 for cname, cserver in cluster_assignments.items():
 	create_assign_cluster(cname)
+
+# Update transaction logs
+for mserver, port in server_list.items():
+	configure_tlogs(mserver)
 
 print '<< Writing updated domain to disk'
 updateDomain()
@@ -418,12 +470,26 @@ print '>> Updating Library assignments'
 # Change XDO target to include UCM Cluster
 assign('Library', 'oracle.xdo.runtime#1@11.1.1.3.0', 'Target', ucm_cluster_name)
 assign('Library', 'oracle.soa.workflow.wc#11.1.1@11.1.1', 'Target', ipm_cluster_name + ',' + soa_cluster_name)
-assign('AppDeployment', 'wsm-pm', 'Target', soa_cluster_name)
+assign('AppDeployment', 'wsm-pm', 'Target', wsm_cluster_name)
+assign('Library', 'oracle.rules#11.1.1@11.1.1', 'Target', 'AdminServer,' + soa_cluster_name)
+assign('JDBCSystemResource', 'mds-owsm', 'Target', 'AdminServer,' + wsm_cluster_name)
 #assign('AppDeployment', 'NonJ2EEManagement#11.1.1', 'Target', 'AdminServer')
+
+# Build complete server and cluster list
+targetlist_full='AdminServer'
+cd('/')
+clusters = cmo.getClusters()
+for cluster in clusters:
+	targetlist_full = targetlist_full + ',' + str(cluster.getName())
+
+for server in servers:
+	if 'IBR' in str(server.getName()):
+		targetlist_full = targetlist_full + ',' + str(server.getName())
+	
+assign('Library', 'oracle.wsm.seedpolicies#11.1.1@11.1.1', 'Target', targetlist_full)
 
 soa_only_libraries = [\
 'oracle.soa.worklist.webapp#11.1.1@11.1.1',\
-'oracle.rules#11.1.1@11.1.1',\
 'oracle.sdp.client#11.1.1@11.1.1',\
 'oracle.soa.rules_editor_dc.webapp#11.1.1@11.1.1',\
 'oracle.soa.rules_dict_dc.webapp#11.1.1@11.1.1',\
@@ -445,9 +511,9 @@ for store in filestores:
 	name = store.getName()
 	store.setDirectory(os.getenv('DOMAIN_BASE') + '/' + os.getenv('DOMAIN_NAME') + '/resources/jms/' + name)
 
-cd('/')
+#cd('/')
 print '>> Setting front end HTTP attributes'
-clusters = cmo.getClusters()
+#clusters = cmo.getClusters()
 for cluster in clusters:
 	clusterName=str(cluster.getName())
 	cd('/Clusters/' + clusterName)
