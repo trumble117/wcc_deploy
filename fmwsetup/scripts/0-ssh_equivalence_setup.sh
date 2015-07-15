@@ -13,9 +13,13 @@
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 REMOTE_MACHINES=( "${MACHINE_LIST[@]/$HOSTNAME}" )
-
-$MEDIA_BASE/scripts/sshUserSetup.sh -user oracle -hosts "${REMOTE_MACHINES[@]}" -noPromptPassphrase -confirm -advanced
-if [[ $? == 1 ]]; then
-	echo "[FATAL] An error occurred during ssh equivalence setup. Please inspect the output, and try again"
-	exit 2
+if [[ $MULTINODE == 1 ]]; then
+	$MEDIA_BASE/scripts/sshUserSetup.sh -user oracle -hosts "${REMOTE_MACHINES[@]}" -noPromptPassphrase -confirm -advanced
+	if [[ $? == 1 ]]; then
+		echo "[FATAL] An error occurred during ssh equivalence setup. Please inspect the output, and try again"
+		exit 2
+	fi
+else
+	echo "> SSH equivalence unnecessary, since multinode was not selected."
+	echo "> Please proceed to step 1"
 fi

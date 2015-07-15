@@ -23,7 +23,7 @@ The following base installation packages will need to be present in the {SCRIPT_
 |                   |          | ofm_wcc_generic_11.1.1.8.0_disk1_2of2.zip |
 | Oracle SOA Suite | 11.1.1.7 | ofm_soa_generic_11.1.1.7.0_disk1_1of2.zip |
 |            |          | ofm_soa_generic_11.1.1.7.0_disk1_2of2.zip |
-| Oracle WebTier | 11.1.1.7 | ofm_webtier_linux_11.1.1.7.0_64_disk1_1of1.zip |
+| Oracle WebTier | 11.1.1.9 | ofm_webtier_linux_11.1.1.9.0_64_disk1_1of1.zip |
 | Oracle RCU | 11.1.1.8 | ofm_rcu_linux_11.1.1.8.0_64_disk1_1of1.zip |
 | Oracle WebLogic Server | 10.3.6 | wls1036_generic.jar |
 
@@ -31,11 +31,10 @@ The following patches will need to be present in a PATCHES directory underneath 
 
 | Product | Archive Name | Release |
 | ------- | ------------ | ------------ |
-| WebCenter Content | p20022599_111180_Generic.zip | Bundle Patch 9 (January 2015) |
-| Oracle SOA Suite | p19953598_111170_Generic.zip | Bundle Patch 6 (January 2015) |
-| Oracle WebTier | p18423831_111170_Linux-x86-64.zip | July 2014 SPU |
-| Oracle WebLogic Server | p19637463_1036_Generic.zip | 12UV (January 2015) |
-| Oracle OPatch | p6880880_111000_Linux-x86-64.zip | 11.1.0.12.5 (January 2015) |
+| WebCenter Content | p21168615_111180_Generic.zip | Bundle Patch 13 (July 2015) |
+| Oracle SOA Suite | p20900797_111170_Generic.zip | Bundle Patch 8 (July 2015) |
+| Oracle WebLogic Server | p20780171_1036_Generic.zip | EJUW (July 2015) |
+| Oracle OPatch | p6880880_111000_Linux-x86-64.zip | 11.1.0.12.7 (July 2015) |
 
 #### NOTE: The location of these files is very important. They must have the above names and be in the proper location, else deployment will fail and will not continue.
 

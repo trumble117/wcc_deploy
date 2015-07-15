@@ -5,6 +5,9 @@
 # April 4, 2015
 #
 # Configure all system prerequisites prior to software installation and configuration
+# 
+# CHANGELOG
+# 07/15/2015 - Added call to check for required software archives
 
 
 cleanup () {
@@ -24,6 +27,14 @@ fi
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 cd $MEDIA_BASE/scripts
+
+# Test that installers exist
+./required_source.sh
+if [[ $? == 2 ]]; then
+	echo "[FATAL] Please download and stage all required software packages, and try again"
+	cleanup
+	exit 2
+fi
 
 # Unzip installers from this machine
 ./unzip_installers.sh

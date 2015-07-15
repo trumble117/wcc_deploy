@@ -10,6 +10,7 @@
 # 03/02/2015 - Added SOA, Updated Patch Registry
 # 04/17/2015 - Fixed bug: iptables still denying traffic, particularly
 #			   to nodemanager. Due to DENY ALL above all custom port rules
+# 07/15/2015 - Updated patch list for July 2015
 
 create_error () {
 	echo "$1"
@@ -174,8 +175,7 @@ echo "> DONE"
 
 #PATCH REGISTRY
 #
-# p19637463_1036_Generic.zip - WebLogic Server BP 10 January 2015 (12UV)
-# p18423831_111170_Linux-x86-64.zip - WebTier July 2014 SPU 
-# p6880880_111000_Linux-x86-64.zip - OPatch January 2015 (11.1.0.12.5)
-# p20022599_111180_Generic.zip - WebCenter Content BP9 January 2015
-# p19953598_111170_Generic.zip - SOA Suite BP6 January 2015
+# WebCenter Content - p21168615_111180_Generic.zip [Bundle Patch 13 (July 2015)]
+# Oracle SOA Suite - p20900797_111170_Generic.zip [Bundle Patch 8 (July 2015)]
+# Oracle WebLogic Server - p20780171_1036_Generic.zip [EJUW (July 2015)]
+# Oracle OPatch - p6880880_111000_Linux-x86-64.zip [11.1.0.12.7 (July 2015)]

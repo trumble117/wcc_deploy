@@ -7,6 +7,7 @@
 # Unzip binary installers
 #
 # CHANGELOG
+# 07/15/2015 - Updated software list for July 2015
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
@@ -43,7 +44,7 @@ if [[ "$(ls -A WT)" ]]; then
 	echo ">> WT directory is nonempty. Assuming unzip has already occurred."
 else
 	echo ">> Unzip WT binaries"
-	unzip -qo ofm_webtier_linux_11.1.1.7.0_64_disk1_1of1.zip -d WT
+	unzip -qo ofm_webtier_linux_11.1.1.9.0_64_disk1_1of1.zip -d WT
 fi
 
 # RCU 11.1.1.8

@@ -9,6 +9,7 @@
 # CHANGELOG
 # 03/02/2015 - Updated patch list for January updates
 #			 - Added SOA
+# 07/15/2015 - Updated patch list for July 2015
 
 # Source environment settings, exit on error
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
@@ -29,24 +30,26 @@ echo ">> Starting patch process for Oracle WebCenter Content"
 export ORACLE_HOME=$ECM_HOME
 patch_opatch
 # To get OCM response file, run $ORACLE_HOME/OPatch/ocm/bin/emocmrsp
-$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p20022599_111180_Generic.zip
+$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p21168615_111180_Generic.zip
 
 # Patch WebCenter Content
 echo ">> Starting patch process for Oracle SOA Suite"
 export ORACLE_HOME=$SOA_HOME
 patch_opatch
 # To get OCM response file, run $ORACLE_HOME/OPatch/ocm/bin/emocmrsp
-$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p20423535_111170_Generic.zip
+$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p20900797_111170_Generic.zip
 export ORACLE_HOME=$FMW_HOME/oracle_common
-$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p20423535_111170_Generic.zip
+$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p20900797_111170_Generic.zip
 
+# NO PATCH FOR WEB TIER 11.1.1.9 YET
 # Patch Web Tier
-echo ">> Starting patch process for Oracle Web Tier"
-export ORACLE_HOME=$WT_HOME
-patch_opatch
+#echo ">> Starting patch process for Oracle Web Tier"
+#export ORACLE_HOME=$WT_HOME
+#patch_opatch
 # To get OCM response file, run $ORACLE_HOME/OPatch/ocm/bin/emocmrsp
-$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p18423831_111170_Linux-x86-64.zip
+#$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p18423831_111170_Linux-x86-64.zip
 
+export ORACLE_HOME=$WT_HOME
 echo ">> Setting permissions on .apachectl for privileged port use"
 # Set permissions to bind to privileged ports later
 sudo chown root $ORACLE_HOME/ohs/bin/.apachectl
@@ -57,13 +60,13 @@ echo ">> Starting patch process for WebLogic Server"
 export ORACLE_HOME=$WL_HOME
 BSU_DIR=$FMW_HOME/utils/bsu
 [[ ! -d $BSU_DIR/cache_dir ]] && mkdir $BSU_DIR/cache_dir
-[[ ! -d $BSU_DIR/cache_dir/YUIS ]] && mkdir $BSU_DIR/cache_dir/YUIS
-unzip -qo $STAGE_DIR/PATCHES/p20181997_1036_Generic.zip -d $BSU_DIR/cache_dir/YUIS
+[[ ! -d $BSU_DIR/cache_dir/EJUW ]] && mkdir $BSU_DIR/cache_dir/EJUW
+unzip -qo $STAGE_DIR/PATCHES/p20780171_1036_Generic.zip -d $BSU_DIR/cache_dir/EJUW
 # Sometimes BSU will fail if the patch catalog name is left default
-cp $BSU_DIR/cache_dir/YUIS/patch-catalog_22580.xml $BSU_DIR/cache_dir/YUIS/patch-catalog.xml
+cp $BSU_DIR/cache_dir/EJUW/patch-catalog_22958.xml $BSU_DIR/cache_dir/EJUW/patch-catalog.xml
 # BSU won't run unless you run it from it's own directory
 cd $BSU_DIR
-$BSU_DIR/bsu.sh -install -patch_download_dir=$BSU_DIR/cache_dir/YUIS -patchlist=YUIS -prod_dir=$ORACLE_HOME
+$BSU_DIR/bsu.sh -install -patch_download_dir=$BSU_DIR/cache_dir/EJUW -patchlist=EJUW -prod_dir=$ORACLE_HOME
 
 # Include xdo report library in UCM application deployment
 echo ">> Modifying CS application deployment to include XDO runtime"
