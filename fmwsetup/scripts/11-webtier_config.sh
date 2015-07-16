@@ -26,3 +26,7 @@ cp $RESP_DIR/staticports.ini /tmp
 echo "> Launching wizard"
 # Launch configuration wizard
 $WT_HOME/bin/config.sh -silent -responseFile $RESP_DIR/config_ohs.rsp DOMAIN_USER_PASSWORD=$ADMIN_PW DOMAIN_HOST_NAME=$ADMIN_SERVER_HOST INSTANCE_HOME=$WT_INSTANCE_HOME INSTANCE_NAME=$OHS_INSTANCE_NAME
+
+echo
+echo "[IMPORTANT] - If you encounter an error at the end of configuration stating \"Failed to Start OHS Component\", please disregard it and move on to the next step."
+echo "The cause of this error is known and expected for this deployment."
