@@ -18,6 +18,10 @@
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $MY_DIR
 
+# Source environment settings, exit on error
+[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh 2>&1 > /dev/null
+[[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
+
 usage(){
 	echo "Usage:  	./fmw_deploy.sh {function} {step}"
 	echo
@@ -44,9 +48,6 @@ usage(){
 
 print_reqs(){
 printf "\nDisplaying required software archives for this deployment set...\n  Key: [\"Product Name\"] - \"Filename of archive\"\n\n"
-# Source environment settings, exit on error
-[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh 2>&1 > /dev/null
-[[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 [[ ! -z $STAGE_DIR ]] && echo "The following archives should be present in: $STAGE_DIR" || printf "The following archives should be present in your staging directory\nYour staging directory has not yet been set. Please run fmwda.sh\n"
 # Print all installers
@@ -72,6 +73,7 @@ if [[ $FUNC == "-h" ]] || [[ $FUNC == "-help" ]]; then
 	usage
 	exit
 elif [[ $FUNC == "-d" ]]; then
+	[[ "$FMWDA_RUN" = false ]] && printf "[FATAL] - FMWDA.sh has not been executed\nPlease run the utility to populate your environment configuration\n" && exit 2
 	case $STEP in
 	0) ./0-ssh_equivalence_setup.sh;;
 	1) ./01-run_prerequisites.sh;;

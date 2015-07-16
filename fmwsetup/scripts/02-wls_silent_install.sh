@@ -12,7 +12,7 @@ echo "> Beginning WLS Silent Installation"
 echo ">> Silent XML: $RESP_DIR/wls_silent.xml"
 echo
 
-$JAVA_HOME/bin/java -Xmx1024m -jar $STAGE_DIR/wls1036_generic.jar -mode=silent -silent_xml=$RESP_DIR/wls_silent.xml
+$JAVA_HOME/bin/java -Xmx1024m -jar $STAGE_DIR/${INSTALLER_LIST[Oracle_WebLogic_Server]} -mode=silent -silent_xml=$RESP_DIR/wls_silent.xml
 
 # Copy required jars to Java Home
 [[ ! -d $JAVA_HOME/jre/lib/endorsed ]] && sudo mkdir $JAVA_HOME/jre/lib/endorsed

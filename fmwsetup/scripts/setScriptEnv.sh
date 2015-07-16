@@ -111,6 +111,8 @@ PATCH_LIST[Oracle_SOA_Suite]="p20900797_111170_Generic.zip"
 PATCH_LIST[Oracle_WebLogic_Server]="p20780171_1036_Generic.zip"
 PATCH_LIST[Oracle_OPatch]="p6880880_111000_Linux-x86-64.zip"
 
+FMWDA_RUN=false
+
 echo "######################################"
 echo "# Scripting environment has been set #"
 echo "######################################"
