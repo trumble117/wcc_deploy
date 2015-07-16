@@ -12,19 +12,18 @@
 # CHANGELOG
 # 06/17/2015 - Added WSMPM resources (separated from SOA,
 #			   per documentation recommendation).
+# 07/16/2015 - Added option to print required software
+#			   archives
 
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $MY_DIR
-
-# Source environment settings, exit on error
-#[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
-#[[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
 usage(){
 	echo "Usage:  	./fmw_deploy.sh {function} {step}"
 	echo
 	echo "Functions:	-d		Deploy/install this step"
 	echo "		-u		Revert/uninstall this step"
+	echo "		-r|-req		Display requisite software archives"
 	echo "		-h|-help	Launch this message"
 	echo
 	echo "Steps:		 0	-	Establish node equivalence"
@@ -41,6 +40,26 @@ usage(){
 	echo "		 11	-	Configure Web Tier"
 	echo "		 12	-	Install OHS configuration"
 	echo "		 13	-	Install initial configuration for WCC + IBR"
+}
+
+print_reqs(){
+printf "\nDisplaying required software archives for this deployment set...\n  Key: [\"Product Name\"] - \"Filename of archive\"\n\n"
+# Source environment settings, exit on error
+[[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh 2>&1 > /dev/null
+[[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
+
+[[ ! -z $STAGE_DIR ]] && echo "The following archives should be present in: $STAGE_DIR" || printf "The following archives should be present in your staging directory\nYour staging directory has not yet been set. Please run fmwda.sh\n"
+# Print all installers
+for product in "${!INSTALLER_LIST[@]}"; do
+        echo ">> [$product] - ${INSTALLER_LIST[$product]}"
+done
+
+echo
+[[ ! -z $STAGE_DIR ]] && echo "The following archives should be present in: $STAGE_DIR/PATCHES" || printf "The following archives should be present in a PATCHES directory inside your staging directory\nYour staging directory has not yet been set. Please run fmwda.sh\n"
+# Print all patches
+for patch in "${!PATCH_LIST[@]}"; do
+	echo ">> $patch - ${PATCH_LIST[$patch]}"
+done
 }
 
 [[ -z $1 ]] && usage && exit 2
@@ -81,6 +100,9 @@ elif [[ $FUNC == "-u" ]]; then
 	   usage
 	   exit 2;;
 	esac
+elif [[ $FUNC == "-r" ]] || [[ $FUNC == "-req" ]]; then
+	print_reqs
+	exit
 else
 	echo "$FUNC is not a valid function"
 	usage
