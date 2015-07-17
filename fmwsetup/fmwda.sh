@@ -376,6 +376,8 @@ sed -i "s|ORACLE_HOME.*|ORACLE_HOME=$SOA_HOME|g" responses/install_soa.rsp
 sed -i "s|ORACLE_HOME.*|ORACLE_HOME=$WT_HOME|g" responses/install_wt.rsp
 sed -i "s|INSTANCE_HOME.*|INSTANCE_HOME=$WT_INSTANCE_HOME|g" responses/config_ohs.rsp
 
+sed -i "s|FMWDA_RUN=.*|FMWDA_RUN=true|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+
 echo
 echo "Ready to go!"
 echo "Run $MEDIA_BASE/scripts/fmw_deploy.sh to get started!"
