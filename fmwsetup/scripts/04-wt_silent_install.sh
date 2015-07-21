@@ -8,7 +8,7 @@
 # 07/17/2015 - Added status tracking
 
 spin() {
-   local -a marks=( '/' '-' '\' '|' )
+   local -a marks=( 'Please wait /' 'Please wait -' 'Please wait \' 'Please wait |' )
    count=0
    while [[ $count < 30 ]]; do
      printf '%s\r' "${marks[i++ % ${#marks[@]}]}"
