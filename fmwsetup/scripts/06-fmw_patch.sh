@@ -73,7 +73,13 @@ cd $ECM_HOME/ucm/idc/components/ServletPlugin
 unzip -qo cs.ear META-INF/weblogic-application.xml
 # Backup in case of revert
 cp META-INF/weblogic-application.xml META-INF/weblogic-application.xml-BAK
-sed -i 's/.*<\/weblogic-application>.*/\t<library-ref>\n\t\t<library-name>oracle.xdo.runtime<\/library-name>\n\t<\/library-ref>\n&/' META-INF/weblogic-application.xml
-zip -qf cs.ear META-INF/weblogic-application.xml
+if [[ ! $(grep xdo META-INF/weblogic-application.xml) ]]; then
+	sed -i 's/.*<\/weblogic-application>.*/\t<library-ref>\n\t\t<library-name>oracle.xdo.runtime<\/library-name>\n\t<\/library-ref>\n&/' META-INF/weblogic-application.xml
+	zip -qf cs.ear META-INF/weblogic-application.xml
+else
+	echo "[ERROR] XDO library has already been included in CS application deployment"
+	echo ">>> Cleaning up...
+	rm -rf META-INF
+fi
 
 echo "> Fusion Middleware patch application complete."
