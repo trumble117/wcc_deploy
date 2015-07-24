@@ -58,6 +58,8 @@ sudo chmod 6750 $ORACLE_HOME/ohs/bin/.apachectl
 echo ">> Starting patch process for WebLogic Server"
 export ORACLE_HOME=$WL_HOME
 BSU_DIR=$FMW_HOME/utils/bsu
+# Modify BSU.sh to prevent GC overhead limit errors
+sed -i 's/MEM_ARGS=.*/MEM_ARGS=\"-Xms256m -Xmx1024m -XX:-UseGCOverheadLimit\"/g' $BSU_DIR/bsu.sh
 [[ ! -d $BSU_DIR/cache_dir ]] && mkdir $BSU_DIR/cache_dir
 [[ ! -d $BSU_DIR/cache_dir/EJUW ]] && mkdir $BSU_DIR/cache_dir/EJUW
 unzip -qo $STAGE_DIR/PATCHES/${PATCH_LIST[Oracle_WebLogic_Server]} -d $BSU_DIR/cache_dir/EJUW
@@ -78,8 +80,6 @@ if [[ ! $(grep xdo META-INF/weblogic-application.xml) ]]; then
 	zip -qf cs.ear META-INF/weblogic-application.xml
 else
 	echo "[ERROR] XDO library has already been included in CS application deployment"
-	echo ">>> Cleaning up..."
-	rm -rf META-INF
 fi
 
 echo "> Fusion Middleware patch application complete."
