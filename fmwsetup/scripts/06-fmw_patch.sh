@@ -78,7 +78,7 @@ if [[ ! $(grep xdo META-INF/weblogic-application.xml) ]]; then
 	zip -qf cs.ear META-INF/weblogic-application.xml
 else
 	echo "[ERROR] XDO library has already been included in CS application deployment"
-	echo ">>> Cleaning up...
+	echo ">>> Cleaning up..."
 	rm -rf META-INF
 fi
 
