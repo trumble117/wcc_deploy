@@ -1,14 +1,13 @@
 # Oracle WebCenter Content Deployment Assistant [BETA]
 
 ## Description
-This script set deploys the Oracle WebCenter Content Suite according to the 11.1.1.8 Enterprise Deployment Guide. The deployment is done via command line without the need for a GUI. Though it should be noted that several products contained in this suite still rely upon X libraries to function correctly.
+This script set deploys the Oracle WebCenter Content Suite according to the 11.1.1.8 Enterprise Deployment Guide. The deployment is done via command line without the need for a GUI. Though it should be noted that several products contained in this suite still rely upon X libraries to function correctly. Multi-node deployment is now fully supported, though testing has been rather limited.
 
 ## Restrictions
 There are some limitations or restrictions applicable to the current release that you should be aware of prior to beginning:
 
-* Currently, these scripts only support deployment to a **single node**. That means that the scripts must put all resources on one machine. There are places in the FMWDA that may indicate that a multi-node deployment is possible, but it is not in this release. Also, even though I use clusters in the deployment, there is only one managed server per cluster. There are plans to expand the capability in the next release.
 * You must obtain all software and patches on your own. The installation binaries are both proprietary, and quite large, and therefore I cannot ship them with these scripts. For a list of required software archives, see the section on **Software**.
-* Prior to beginning the deployment, ensure the the user *oracle* exists, and is a member of the group *oinstall*. This user need also have password-free sudo rights for the purposes of deployment. 
+* Prior to beginning the deployment, ensure the the user *oracle* exists, and is a member of the group *oinstall*. This user need also have password-free sudo rights for the purposes of deployment. If these prerequisites are not met, the installer will stop and provide a fix script that must be run as *root* to continue.
 	* These scripts must also be run as *oracle*. The scripts should do a check for these things and offer solutions, but it's easier to have them taken care of before beginning.
 * These scripts will perform an installation, and some basic configuration only. No other higher-level or user-specific configuration is performed.
 
@@ -72,7 +71,7 @@ The scripts were made with simplicity in mind. You will use a utility to answer 
 4. From BASH, **as oracle**, use *scripts/fmw_deploy.sh* to step through your deployment. Running it sans arguments will display the help function, along with descriptions for each step.
 	- *Example (to deploy step 0): ./scripts/fmw_deploy.sh -d 0*
 	- Most steps have an undo function that will allow you to back up in case the step fails and you need to retry
-5. During a few of the steps (product installations - steps 2, 3, and 4), the installation gets forked to a background process, and the output does not go to standard out. A log file is displayed for you to follow the installation progress. It is important to watch this log until you see a message stating that installation is complete, before moving to the next step.
+5. During a few of the steps (product installations - steps 3, 4, and 5), the installation gets forked to a background process, and the output does not go to standard out. A log file is displayed for you to follow the installation progress. The spinner will stop when the background process is done, but it is still recommended to inspect the log for errors. *It is possible that no indication will be made that an error has occurred.*
 6. After all of the steps have been completed, the AdminServer, Nodemanager, and OHS instance will be up and running. None of the managed servers will be started, however. Navigate to the WLS Administration Console to get started:
 	- http://your_hostname:7001/console
 7. On future start-ups, these resources will not auto-start. I install a small utility to help ease the process, however. It is available as the 'wls' command from BASH, and can be used to start the AdminServer and NodeManager. Run 'wls' (after a profile refresh) to display usage information.
