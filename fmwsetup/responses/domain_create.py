@@ -45,7 +45,7 @@ ucm_template_list = ['oracle.ucm.cs_template_11.1.1.jar',
 'oracle.emai_ibr_template_11.1.1.jar',
 'oracle.capture_template_11.1.1.jar',
 'oracle.ucm.ibr_template_11.1.1.jar']
-soa_template_list = ['oracle.soa_template_11.1.1.jatesr']
+soa_template_list = ['oracle.soa_template_11.1.1.jar']
 common_template_list = ['jrf_template_11.1.1.jar',
 'oracle.em_11_1_1_0_0_template.jar',
 'oracle.wsmpm_template_11.1.1.jar',
