@@ -367,7 +367,7 @@ setOption('AppDir', app_dir)
 
 print '<< Writing SOA-extended domain to disk'
 updateDomain()
-closeTemplate()
+closeDomain()
 	
 # Add UCM-specific domain extensions
 print '>> Read domain from disk: ' + domain_name
@@ -382,7 +382,7 @@ setOption('AppDir', app_dir)
 
 print '<< Writing UCM-extended domain to disk'
 updateDomain()
-closeTemplate()
+closeDomain()
 
 # Perform necessary domain modifications
 print '>> Read domain from disk: ' + domain_name
