@@ -110,9 +110,24 @@ echo "What is the prefix we should use to create database schemas? [DEV]"
 read SCHEMA_PREFIX
 [[ -z $SCHEMA_PREFIX ]] && SCHEMA_PREFIX="DEV"
 
-echo "What is the name of your sysdba user? [sys]"
+echo "What is the name of your db admin user? [sys]"
 read DB_USER
 [[ -z $DB_USER ]] && DB_USER="sys"
+
+VALID_RESPONSE=0
+while [[ $VALID_RESPONSE == 0 ]]; do
+	echo "Is this user a member of the sysdba role? [Y/n]"
+	read IS_SYSDBA
+	IS_SYSDBA_UPPER=$(echo $IS_SYSDBA | tr 'a-z' 'A-Z')
+	if [[ -z $IS_SYSDBA ]]; then
+		IS_SYSDBA="Y"
+	elif [[ $IS_SYSDBA_UPPER == "N" ]] || [[ $IS_SYSDBA_UPPER == "Y" ]]; then
+		IS_SYSDBA=$IS_SYSDBA_UPPER
+		VALID_RESPONSE=1
+	else
+		echo "Invalid response, try again..."
+	fi
+done
 
 echo
 echo "< Backing up old file"
@@ -133,6 +148,7 @@ sed -i "s|DB_URL=.*|DB_URL=$DB_URL|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|SCHEMA_PREFIX=.*|SCHEMA_PREFIX=$SCHEMA_PREFIX|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|ADMIN_PW=.*|ADMIN_PW=$ADMIN_PW|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|DB_USER=.*|DB_USER=$DB_USER|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|IS_SYSDBA=.*|IS_SYSDBA=$IS_SYSDBA|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 
 # DB Passwords
 echo
