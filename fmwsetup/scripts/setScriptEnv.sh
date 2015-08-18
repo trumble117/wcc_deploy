@@ -39,9 +39,10 @@ WSMHOSTS=wccapp2:7010
 # DB Variables
 DB_URL=jdbc:oracle:thin:@bebop-db.trumble.home:1521/bebopdb
 SCHEMA_PREFIX=DEV
+DB_USER=sys
 
 export FMW_HOME DOMAIN_BASE DOMAIN_NAME JAVA_HOME JAVA_VENDOR MEDIA_BASE ADMIN_SERVER_HOST OHS_INSTANCE_NAME OHS_NAME NM_PORT DB_URL SCHEMA_PREFIX ADMIN_PW SOA_HOSTNAMES LOAD_BAL_ADDR MULTINODE MACHINE_LIST
-export UCMHOSTS SOAHOSTS IBRHOSTS URMHOSTS IPMHOSTS CAPHOSTS WSMHOSTS
+export UCMHOSTS SOAHOSTS IBRHOSTS URMHOSTS IPMHOSTS CAPHOSTS WSMHOSTS DB_USER
 
 # Derived variables
 # FMW
@@ -76,10 +77,10 @@ elif [[ -z $DB_URL ]] || [[ -z $SCHEMA_PREFIX ]]; then
 	echo "[FATAL] One or more DB variables are missing assignment values. Please check 'setScriptEnv.sh' to ensure that all values are set."
 	echo
 	exit 2
-elif [[ ! -a $JAVA_HOME/bin/java ]]; then
+elif [[ ! -a $JAVA_HOME/bin/java ]] && [[ $IGNORE_JAVA != true ]]; then
 	echo "[FATAL] An invalid Java Home has been specified. Please check 'setScriptEnv.sh' to ensure that a correct Java location is set."
 	echo
- 	echo "This message can be safely ignored if you are on Step 0"
+ 	echo "This message can be safely ignored if you have not yet completed Step 1"
 	echo "Would you like to continue? [y/N]"
 	read user_resp
 	user_resp_upper=$(echo $user_resp | tr 'a-z' 'A-Z')
@@ -87,6 +88,7 @@ elif [[ ! -a $JAVA_HOME/bin/java ]]; then
 		exit 2
 	elif [[ $user_resp_upper == "Y" ]]; then
 		echo "Ignoring invalid Java Home..."
+		export IGNORE_JAVA=true
 	else
 		echo "Invalid response, exiting..."
 		exit 2
@@ -112,6 +114,8 @@ PATCH_LIST[Oracle_WebLogic_Server]="p20780171_1036_Generic.zip"
 PATCH_LIST[Oracle_OPatch]="p6880880_111000_Linux-x86-64.zip"
 
 FMWDA_RUN=false
+
+export INSTALLER_LIST PATCH_LIST
 
 echo "######################################"
 echo "# Scripting environment has been set #"

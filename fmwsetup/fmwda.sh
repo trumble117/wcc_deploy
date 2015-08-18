@@ -110,6 +110,11 @@ echo "What is the prefix we should use to create database schemas? [DEV]"
 read SCHEMA_PREFIX
 [[ -z $SCHEMA_PREFIX ]] && SCHEMA_PREFIX="DEV"
 
+echo "What is the name of your sysdba user? [sys]"
+read DB_USER
+[[ -z $DB_USER ]] && DB_USER="sys"
+
+echo
 echo "< Backing up old file"
 cp $MEDIA_BASE/scripts/setScriptEnv.sh $MEDIA_BASE/scripts/setScriptEnv.sh-BAK 
 echo "> Writing responses to file: $MEDIA_BASE/scripts/setScriptEnv.sh"
@@ -127,6 +132,7 @@ sed -i "s|NM_PORT=.*|NM_PORT=$NM_PORT|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|DB_URL=.*|DB_URL=$DB_URL|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|SCHEMA_PREFIX=.*|SCHEMA_PREFIX=$SCHEMA_PREFIX|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|ADMIN_PW=.*|ADMIN_PW=$ADMIN_PW|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|DB_USER=.*|DB_USER=$DB_USER|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 
 # DB Passwords
 echo
@@ -135,7 +141,7 @@ echo "OK, now I need some passwords for your database (sounds scary, right?)"
 echo
 PASSWORDS_MATCH=0
 while [[ $PASSWORDS_MATCH == 0 ]]; do
-	echo "What is the password for your sys (sysdba) user? I need it to connect to $DB_URL"
+	echo "What is the password for your $DB_USER (sysdba) user? I need it to connect to $DB_URL"
 	read -s SYS_PW
 	count=0
 	while [[ -z $SYS_PW ]]; do
@@ -181,6 +187,7 @@ echo "< Backing up old file"
 cp $MEDIA_BASE/responses/db_schema_passwords.txt $MEDIA_BASE/responses/db_schema_passwords.txt-BAK
 echo "> Writing passwords to file: $MEDIA_BASE/responses/db_schema_passwords.txt"
 echo $SYS_PW > $MEDIA_BASE/responses/db_schema_passwords.txt
+
 for i in `seq 1 7`;
 do
 	echo $SCHEMA_PW >> $MEDIA_BASE/responses/db_schema_passwords.txt
@@ -377,6 +384,10 @@ sed -i "s|ORACLE_HOME.*|ORACLE_HOME=$WT_HOME|g" responses/install_wt.rsp
 sed -i "s|INSTANCE_HOME.*|INSTANCE_HOME=$WT_INSTANCE_HOME|g" responses/config_ohs.rsp
 
 sed -i "s|FMWDA_RUN=.*|FMWDA_RUN=true|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+
+echo "> Setting executable permission on all scripts"
+# Set executable permission on all files
+find $MEDIA_BASE -name '*.sh' | xargs chmod +x
 
 echo
 echo "Ready to go!"

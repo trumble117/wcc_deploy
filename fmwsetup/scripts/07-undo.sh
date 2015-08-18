@@ -15,6 +15,6 @@
 
 echo "> Begin drop of DB schemas"
 
-$STAGE_DIR/RCU_11118/rcuHome/bin/rcu -silent -dropRepository -connectString $DB_URL -dbUser sys -dbRole sysdba -schemaPrefix $SCHEMA_PREFIX -component CONTENTSERVER11 -component URM -component CAPTURE -component MDS -component IPM -component SOAINFRA -component ORASDPM -f < ../responses/db_schema_passwords.txt
+$STAGE_DIR/RCU_11118/rcuHome/bin/rcu -silent -dropRepository -connectString $DB_URL -dbUser $DB_USER -dbRole sysdba -schemaPrefix $SCHEMA_PREFIX -component CONTENTSERVER11 -component URM -component CAPTURE -component MDS -component IPM -component SOAINFRA -component ORASDPM -f < ../responses/db_schema_passwords.txt
 
 echo "> FMW schema drop complete"
