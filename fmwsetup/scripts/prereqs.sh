@@ -11,6 +11,7 @@
 # 04/17/2015 - Fixed bug: iptables still denying traffic, particularly
 #			   to nodemanager. Due to DENY ALL above all custom port rules
 # 07/15/2015 - Updated patch list for July 2015
+# 09/01/2015 - Test if iptables is running before trying to modify them
 
 create_error () {
 	echo "$1"
@@ -148,29 +149,37 @@ if [[ $MULTINODE == 1 ]]; then
 	fi
 fi
 
-# Modify firewall configuration
-if [[ -z $(sudo grep 7001 /etc/sysconfig/iptables) ]]; then
-	echo ">> Modifying firewall configuration"
-	sudo bash -c "iptables-save > /etc/sysconfig/iptables-BAK"
-	sudo iptables -D INPUT -j REJECT --reject-with icmp-host-prohibited
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 7001 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16200 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16250 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16400 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16300 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16000 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001 -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport $NM_PORT -j ACCEPT
-	sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
-	sudo iptables -A INPUT -j REJECT --reject-with icmp-host-prohibited
-	sudo bash -c "iptables-save > /etc/sysconfig/iptables"
-	[[ $? == 1 ]] && create_error ">> [FATAL] Firewall rules were not successfully saved."
-else
-	echo ">> Firewall rules already present on this machine"
-fi
+echo ">> Check status of software firewall..."
+sleep 1
+sudo service iptables status
+FMSTATE=$?
 
+if [[ $FMSTATE != 3 ]]; then
+	# Modify firewall configuration
+	if [[ -z $(sudo grep 7001 /etc/sysconfig/iptables) ]]; then
+		echo ">> Modifying firewall configuration"
+		sudo bash -c "iptables-save > /etc/sysconfig/iptables-BAK"
+		sudo iptables -D INPUT -j REJECT --reject-with icmp-host-prohibited
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 7001 -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16200 -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16250 -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16400 -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16300 -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16000 -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001 -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport $NM_PORT -j ACCEPT
+		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
+		sudo iptables -A INPUT -j REJECT --reject-with icmp-host-prohibited
+		sudo bash -c "iptables-save > /etc/sysconfig/iptables"
+		[[ $? == 1 ]] && create_error ">> [FATAL] Firewall rules were not successfully saved."
+	else
+		echo ">> Firewall rules already present on this machine"
+	fi
+else
+	echo ">>> Skipping firewall configuration"
+fi
 echo "> DONE"
 
 #PATCH REGISTRY
