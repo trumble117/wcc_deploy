@@ -39,7 +39,13 @@ LoadModule weblogic_module   "\${ORACLE_HOME}/ohs/modules/mod_wl_ohs.so"
 	     WLProxySSL OFF
 	     WLProxySSLPassThrough OFF
  </Location>
-  <Location /adfAuthentication>
+ <Location /adfAuthentication>
+	     SetHandler weblogic-handler
+		 WebLogicCluster $UCMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
+ </Location>
+<Location /_ocsh>
 	     SetHandler weblogic-handler
 		 WebLogicCluster $UCMHOSTS
 	     WLProxySSL OFF
@@ -268,6 +274,12 @@ Listen 443
 	     WLProxySSLPassThrough OFF
  </Location>
   <Location /adfAuthentication>
+	     SetHandler weblogic-handler
+		 WebLogicCluster $UCMHOSTS
+	     WLProxySSL OFF
+	     WLProxySSLPassThrough OFF
+ </Location>
+ <Location /_ocsh>
 	     SetHandler weblogic-handler
 		 WebLogicCluster $UCMHOSTS
 	     WLProxySSL OFF

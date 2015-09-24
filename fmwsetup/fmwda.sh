@@ -101,6 +101,32 @@ echo "On which port will your NodeManager(s) run? [5556]"
 read NM_PORT
 [[ -z $NM_PORT ]] && NM_PORT=5556
 
+# Mail Server configuration
+VALID_RESPONSE=0
+while [[ $VALID_RESPONSE == 0 ]]; do
+        echo "Would you like to configure WCC to use an SMTP server for notifications? [Y/n]"
+        read SMTP_SETUP
+        SMTP_SETUP=$(echo $SMTP_SETUP | tr 'a-z' 'A-Z')
+        if [[ -z $SMTP_SETUP ]]; then
+                SMTP_SETUP="Y"
+                VALID_RESPONSE=1
+        elif [[ $SMTP_SETUP -ne "N" ]] || [[ $SMTP_SETUP -ne "Y" ]]; then
+                echo "Invalid response, try again..."
+        else
+                VALID_RESPONSE=1
+        fi
+done
+
+if [[ $SMTP_SETUP == "Y" ]]; then
+        echo "What's the hostname or IP of your SMTP server? [mail]"
+        read SMTP_SRV
+        [[ -z $SMTP_SRV ]] && SMTP_SRV="mail"
+
+        echo "What's your sysadmin email address? [sysadmin@example.com]"
+        read SMTP_ADM
+        [[ -z $SMTP_ADM ]] && SMTP_ADM="sysadmin@example.com"
+fi
+
 # DB Variables
 echo "What is the JDBC URL for your database? [jdbc:oracle:thin:@$(hostname):1521/XE]"
 read DB_URL
@@ -149,6 +175,8 @@ sed -i "s|SCHEMA_PREFIX=.*|SCHEMA_PREFIX=$SCHEMA_PREFIX|g" $MEDIA_BASE/scripts/s
 sed -i "s|ADMIN_PW=.*|ADMIN_PW=$ADMIN_PW|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|DB_USER=.*|DB_USER=$DB_USER|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 sed -i "s|IS_SYSDBA=.*|IS_SYSDBA=$IS_SYSDBA|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|SMTP_SRV=.*|SMTP_SRV=$SMTP_SRV|g" $MEDIA_BASE/scripts/setScriptEnv.sh
+sed -i "s|SMTP_ADM=.*|SMTP_ADM=$SMTP_ADM|g" $MEDIA_BASE/scripts/setScriptEnv.sh
 
 # DB Passwords
 echo
