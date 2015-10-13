@@ -17,7 +17,7 @@ These scripts have only been tested on Oracle Enterprise Linux 6.6 and 6.7 with 
 ## Software
 This section describes the required software packages to be downloaded and staged prior to starting. Installation binaries can be found on OTN and patches can be found in MOS.
 
-The following base installation packages will need to be present in the {SCRIPT_HOME}/Software/Middleware directory. See the section on **Directory Structure** for a more detailed explanation.
+The following base installation packages will need to be present in the {SCRIPT_HOME}/Software/Middleware directory. See the section on **Directory Structure** for a more detailed explanation. Note that this includes WLS and JDK installers.
 
 | Product | Version | Archive Name |
 | ------- | ------- | ------------ |
@@ -28,12 +28,13 @@ The following base installation packages will need to be present in the {SCRIPT_
 | Oracle WebTier | 11.1.1.9 | ofm_webtier_linux_11.1.1.9.0_64_disk1_1of1.zip |
 | Oracle RCU | 11.1.1.8 | ofm_rcu_linux_11.1.1.8.0_64_disk1_1of1.zip |
 | Oracle WebLogic Server | 10.3.6 | wls1036_generic.jar |
+| Oracle JDK |	1.8.0 Update 60	|	jdk-8u60-linux-x64.rpm	|
 
 The following patches will need to be present in a PATCHES directory underneath the Middleware directory containing the binary installers.
 
 | Product | Archive Name | Release |
 | ------- | ------------ | ------------ |
-| WebCenter Content | p21168615_111180_Generic.zip | Bundle Patch 13 (July 2015) |
+| WebCenter Content | p21631736_111190_Generic.zip | Bundle Patch 3 (September 2015) |
 | Oracle SOA Suite | p20900797_111170_Generic.zip | Bundle Patch 8 (July 2015) |
 | Oracle WebLogic Server | p20780171_1036_Generic.zip | EJUW (July 2015) |
 | Oracle OPatch | p6880880_111000_Linux-x86-64.zip | 11.1.0.12.7 (July 2015) |
