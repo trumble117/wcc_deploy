@@ -114,6 +114,7 @@ fi
 declare -A INSTALLER_LIST
 declare -A PATCH_LIST
 
+INSTALLER_LIST[WebCenter_Content_Disk1]="ofm_wcc_generic_11.1.1.9.0_disk1_1of2.zip"
 INSTALLER_LIST[WebCenter_Content_Disk2]="ofm_wcc_generic_11.1.1.9.0_disk1_2of2.zip"
 INSTALLER_LIST[Oracle_SOA_Suite_Disk1]="ofm_soa_generic_11.1.1.7.0_disk1_1of2.zip"
 INSTALLER_LIST[Oracle_SOA_Suite_Disk2]="ofm_soa_generic_11.1.1.7.0_disk1_2of2.zip"
