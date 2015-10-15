@@ -8,6 +8,7 @@
 # 
 # CHANGELOG
 # 07/15/2015 - Added call to check for required software archives
+# 10/14/2015 - Created new script to check for user checks and added before unzips
 
 
 cleanup () {
@@ -34,8 +35,13 @@ if [[ $? == 2 ]]; then
 	exit 2
 fi
 
+# Test user existence, group existence, and sudo privileges
+./testUser.sh
+[[ $? == 2 ]] && exit 2
+
 # Unzip installers from this machine
 ./unzip_installers.sh
+[[ $? == 2 ]] && exit 2
 
 # Place temporary files for NFS checks
 if [[ $MULTINODE == 1 ]]; then

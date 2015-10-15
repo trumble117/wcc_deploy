@@ -13,7 +13,7 @@
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
-chmod a+x $STAGE_DIR/${INSTALLER_LIST[Oracle_WebLogic_Server]}
+/bin/chmod a+x $STAGE_DIR/${INSTALLER_LIST[Oracle_WebLogic_Server]}
 
 echo "> Unzipping installer binaries. This can take a while..."
 ## Stage install files
@@ -24,8 +24,8 @@ if [[ "$(ls -A WCC)" ]]; then
 	echo ">> WCC directory is nonempty. Assuming unzip has already occurred."
 else
 	echo ">> Unzip WCC binaries"
-	unzip -qo ${INSTALLER_LIST[WebCenter_Content_Disk1]} -d WCC
-	unzip -qo ${INSTALLER_LIST[WebCenter_Content_Disk2]} -d WCC
+	/usr/bin/unzip -qo ${INSTALLER_LIST[WebCenter_Content_Disk1]} -d WCC
+	/usr/bin/unzip -qo ${INSTALLER_LIST[WebCenter_Content_Disk2]} -d WCC
 fi
 
 # SOA Suite
@@ -34,8 +34,8 @@ if [[ "$(ls -A SOA)" ]]; then
 	echo ">> SOA directory is nonempty. Assuming unzip has already occurred."
 else
 	echo ">> Unzip SOA binaries"
-	unzip -qo ${INSTALLER_LIST[Oracle_SOA_Suite_Disk1]} -d SOA
-	unzip -qo ${INSTALLER_LIST[Oracle_SOA_Suite_Disk2]} -d SOA
+	/usr/bin/unzip -qo ${INSTALLER_LIST[Oracle_SOA_Suite_Disk1]} -d SOA
+	/usr/bin/unzip -qo ${INSTALLER_LIST[Oracle_SOA_Suite_Disk2]} -d SOA
 fi
 
 # Web Tier
@@ -44,7 +44,7 @@ if [[ "$(ls -A WT)" ]]; then
 	echo ">> WT directory is nonempty. Assuming unzip has already occurred."
 else
 	echo ">> Unzip WT binaries"
-	unzip -qo ${INSTALLER_LIST[Oracle_WebTier]} -d WT
+	/usr/bin/unzip -qo ${INSTALLER_LIST[Oracle_WebTier]} -d WT
 fi
 
 # RCU 11.1.1.8
@@ -53,7 +53,7 @@ if [[ "$(ls -A RCU_11118)" ]]; then
 	echo ">> RCU directory is nonempty. Assuming unzip has already occurred."
 else
 	echo ">> Unzip RCU"
-	unzip -qo ${INSTALLER_LIST[Oracle_RCU]} -d RCU_11118
+	/usr/bin/unzip -qo ${INSTALLER_LIST[Oracle_RCU]} -d RCU_11118
 fi
 
 # Create central inventory

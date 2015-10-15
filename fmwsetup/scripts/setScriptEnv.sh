@@ -5,6 +5,8 @@
 # November 5, 2014
 #
 # Set up environment for auto-install/configure scripts
+# CHANGELOG
+# 10/14/2015 - Added check for user
 
 # Base variables
 FMW_HOME=/u01/app/oracle/product/fmw
@@ -100,11 +102,18 @@ elif [[ ! -a $JAVA_HOME/bin/java ]] && [[ $IGNORE_JAVA != true ]]; then
 	fi
 fi
 
+# Ensure we're running scripts as oracle
+THIS_USER=$(whoami)
+if [[ $THIS_USER != "oracle" ]]; then
+	echo ">> Please run these scripts as oracle. <<"
+	echo "Fatal error.. exiting."
+	exit 2
+fi
+
 # Populate software package lists
 declare -A INSTALLER_LIST
 declare -A PATCH_LIST
 
-INSTALLER_LIST[WebCenter_Content_Disk1]="ofm_wcc_generic_11.1.1.9.0_disk1_1of2.zip" 
 INSTALLER_LIST[WebCenter_Content_Disk2]="ofm_wcc_generic_11.1.1.9.0_disk1_2of2.zip"
 INSTALLER_LIST[Oracle_SOA_Suite_Disk1]="ofm_soa_generic_11.1.1.7.0_disk1_1of2.zip"
 INSTALLER_LIST[Oracle_SOA_Suite_Disk2]="ofm_soa_generic_11.1.1.7.0_disk1_2of2.zip"

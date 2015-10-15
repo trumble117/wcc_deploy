@@ -12,7 +12,7 @@ There are some limitations or restrictions applicable to the current release tha
 * These scripts will perform an installation, and some basic configuration only. No other higher-level or user-specific configuration is performed.
 
 ## Support
-These scripts have only been tested on Oracle Enterprise Linux 6.6 and 6.7 with a 64-bit architecture. It is likely that they will work on any RHEL6-based OS, but that has not been proven. Any other Linux variant is not guaranteed compatible. Debian-based systems would definitely have some issues.
+These scripts have only been tested on Oracle Enterprise Linux 6.6 and 6.7 with a 64-bit architecture. It is likely that they will work on any RHEL6-based OS, but that has not been proven. Oracle Enterprise Linux 5 is not supported due to an outdated BASH, and the same is true for any other RHEL5-based OS. Any other Linux variant is not guaranteed compatible. Debian-based systems are not compatible with this distribution.
 
 ## Software
 This section describes the required software packages to be downloaded and staged prior to starting. Installation binaries can be found on OTN and patches can be found in MOS.

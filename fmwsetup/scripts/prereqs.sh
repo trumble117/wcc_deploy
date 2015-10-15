@@ -12,6 +12,8 @@
 #			   to nodemanager. Due to DENY ALL above all custom port rules
 # 07/15/2015 - Updated patch list for July 2015
 # 09/01/2015 - Test if iptables is running before trying to modify them
+# 10/14/2015 - Move user to separate script
+#			   Added explicit paths for executables
 
 create_error () {
 	echo "$1"
@@ -23,40 +25,12 @@ create_error () {
 [[ ! -a setScriptEnv.sh ]] && echo "[> Environment setup could not be completed. Ensure you are executing from the scripts directory, or via the fmw_deploy utility <]" && exit 2 || . ./setScriptEnv.sh
 [[ $? == "2" ]] && echo "[> Halting script execution <]" && exit 2
 
-THIS_USER=$(whoami)
-[[ $THIS_USER != "oracle" ]] && create_error ">> Please run these scripts as oracle. <<"
+# Ensure required packages are installed
+sudo /usr/bin/yum clean all
+sudo /usr/bin/yum install -y $(cat $RESP_DIR/linux_required_packages.txt)
 
 LOCAL_DIRS=($FMW_HOME $DOMAIN_BASE)
 MULTI_DIRS=($FMW_HOME $DOMAIN_BASE/$DOMAIN_NAME/aserver $INTRADOC_DIR $DOMAIN_BASE/$DOMAIN_NAME/resources $LOG_DIR)
-
-# Test for sudo privileges
-sudo -n touch SUDOtest
-if [[ ! -a SUDOtest ]]; then
-	echo "> User oracle does not have the sufficient privileges to SUDO on this machine."
-	echo "> Execute $PWD/fixSudo.sh as a root user to fix privileges before continuing."
-	echo
-	
-	cat << EOF > fixSudo.sh
-echo "oracle	ALL=(ALL)	NOPASSWD: ALL" > /etc/sudoers.d/oracle
-EOF
-	create_error ">> Setup will now exit"
-fi
-[[ -a SUDOtest ]] && rm -f SUDOtest
-[[ -a fixSudo.sh ]] && rm -f fixSudo.sh
-
-# Test if oinstall exists - add oracle to it
-[[ ! $(grep oinstall /etc/group) ]] && sudo groupadd oinstall
-[[ ! $(grep oinstall /etc/group) ]] && create_error ">> [FATAL] Failed to create oinstall group"
-if [[ ! $(groups | grep oinstall) ]]; then
-	sudo usermod -a -G oinstall oracle || create_error ">> [FATAL] Failed to add oracle to oinstall group"
-	echo "WARNING: You must now log out and back in to refresh user group membership before proceeding!"
-	create_error ">> Setup will now exit"
-fi
-echo "> The group 'oinstall' exists and user 'oracle' is a member"
-
-# Ensure required packages are installed
-sudo yum clean all
-sudo yum install -y $(cat $RESP_DIR/linux_required_packages.txt)
 
 # Test for required filesystem directories
 echo "> Running directory checks.."
@@ -110,7 +84,7 @@ elif [[ $MULTINODE == 1 ]]; then
 fi
 echo ">> Directory permissions checks passed."
 
-sudo yum install -y $STAGE_DIR/${INSTALLER_LIST[Java_JDK]}
+sudo /usr/bin/yum install -y $STAGE_DIR/${INSTALLER_LIST[Java_JDK]}
 export PATH=$PATH:$JAVA_HOME/bin
 
 # Test if all server hostnames are resolvable
@@ -151,28 +125,28 @@ fi
 
 echo ">> Check status of software firewall..."
 sleep 1
-sudo service iptables status
+sudo /sbin/service iptables status
 FMSTATE=$?
 
 if [[ $FMSTATE != 3 ]]; then
 	# Modify firewall configuration
 	if [[ -z $(sudo grep 7001 /etc/sysconfig/iptables) ]]; then
 		echo ">> Modifying firewall configuration"
-		sudo bash -c "iptables-save > /etc/sysconfig/iptables-BAK"
-		sudo iptables -D INPUT -j REJECT --reject-with icmp-host-prohibited
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 7001 -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16200 -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16250 -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16400 -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16300 -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16000 -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001 -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport $NM_PORT -j ACCEPT
-		sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
-		sudo iptables -A INPUT -j REJECT --reject-with icmp-host-prohibited
-		sudo bash -c "iptables-save > /etc/sysconfig/iptables"
+		sudo bash -c "/sbin/iptables-save > /etc/sysconfig/iptables-BAK"
+		sudo /sbin/iptables -D INPUT -j REJECT --reject-with icmp-host-prohibited
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 7001 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16200 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16250 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16400 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16300 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 16000 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8001 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport $NM_PORT -j ACCEPT
+		sudo /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 9998 -j ACCEPT
+		sudo /sbin/iptables -A INPUT -j REJECT --reject-with icmp-host-prohibited
+		sudo bash -c "/sbin/iptables-save > /etc/sysconfig/iptables"
 		[[ $? == 1 ]] && create_error ">> [FATAL] Firewall rules were not successfully saved."
 	else
 		echo ">> Firewall rules already present on this machine"
