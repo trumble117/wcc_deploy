@@ -32,7 +32,7 @@ patch_opatch
 # To get OCM response file, run $ORACLE_HOME/OPatch/ocm/bin/emocmrsp
 $ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/${PATCH_LIST[WebCenter_Content]}
 
-# Patch WebCenter Content
+# Patch SOA
 echo ">> Starting patch process for Oracle SOA Suite"
 export ORACLE_HOME=$SOA_HOME
 patch_opatch
@@ -41,13 +41,12 @@ $ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.r
 export ORACLE_HOME=$FMW_HOME/oracle_common
 $ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/${PATCH_LIST[Oracle_SOA_Suite]}
 
-# NO PATCH FOR WEB TIER 11.1.1.9 YET
 # Patch Web Tier
 #echo ">> Starting patch process for Oracle Web Tier"
 export ORACLE_HOME=$WT_HOME
 patch_opatch
 # To get OCM response file, run $ORACLE_HOME/OPatch/ocm/bin/emocmrsp
-#$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/p18423831_111170_Linux-x86-64.zip
+$ORACLE_HOME/OPatch/opatch apply -silent -ocmrf $STAGE_DIR/../../responses/ocm.rsp -invPtrLoc /etc/oraInst.loc $STAGE_DIR/PATCHES/${PATCH_LIST[Oracle_WebTier]}
 
 echo ">> Setting permissions on .apachectl for privileged port use"
 # Set permissions to bind to privileged ports later

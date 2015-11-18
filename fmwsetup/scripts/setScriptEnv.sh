@@ -116,17 +116,18 @@ declare -A PATCH_LIST
 
 INSTALLER_LIST[WebCenter_Content_Disk1]="ofm_wcc_generic_11.1.1.9.0_disk1_1of2.zip"
 INSTALLER_LIST[WebCenter_Content_Disk2]="ofm_wcc_generic_11.1.1.9.0_disk1_2of2.zip"
-INSTALLER_LIST[Oracle_SOA_Suite_Disk1]="ofm_soa_generic_11.1.1.7.0_disk1_1of2.zip"
-INSTALLER_LIST[Oracle_SOA_Suite_Disk2]="ofm_soa_generic_11.1.1.7.0_disk1_2of2.zip"
+INSTALLER_LIST[Oracle_SOA_Suite_Disk1]="ofm_soa_generic_11.1.1.9.0_disk1_1of2.zip"
+INSTALLER_LIST[Oracle_SOA_Suite_Disk2]="ofm_soa_generic_11.1.1.9.0_disk1_2of2.zip"
 INSTALLER_LIST[Oracle_WebTier]="ofm_webtier_linux_11.1.1.9.0_64_disk1_1of1.zip"
 INSTALLER_LIST[Oracle_RCU]="ofm_rcu_linux_11.1.1.9.0_64_disk1_1of1.zip"
 INSTALLER_LIST[Oracle_WebLogic_Server]="wls1036_generic.jar"
-INSTALLER_LIST[Java_JDK]="jdk-8u60-linux-x64.rpm"
+INSTALLER_LIST[Java_JDK]="jdk-7u80-linux-x64.rpm"
 
-PATCH_LIST[WebCenter_Content]="p21631736_111190_Generic.zip"
-PATCH_LIST[Oracle_SOA_Suite]="p20900797_111170_Generic.zip"
+PATCH_LIST[WebCenter_Content]="p21833504_111190_Generic.zip"
+PATCH_LIST[Oracle_SOA_Suite]="p22036578_111190_Generic.zip"
 PATCH_LIST[Oracle_WebLogic_Server]="p20780171_1036_Generic.zip"
 PATCH_LIST[Oracle_OPatch]="p6880880_111000_Linux-x86-64.zip"
+PATCH_LIST[Oracle_WebTier]="p21663064_111190_Linux-x86-64.zip"
 
 FMWDA_RUN=false
 

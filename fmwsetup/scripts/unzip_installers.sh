@@ -48,12 +48,12 @@ else
 fi
 
 # RCU 11.1.1.8
-[[ ! -d RCU_11118 ]] && mkdir RCU_11118 && echo "> Successfully created RCU directory"
-if [[ "$(ls -A RCU_11118)" ]]; then
+[[ ! -d RCU_11118 ]] && mkdir RCU_11119 && echo "> Successfully created RCU directory"
+if [[ "$(ls -A RCU_11119)" ]]; then
 	echo ">> RCU directory is nonempty. Assuming unzip has already occurred."
 else
 	echo ">> Unzip RCU"
-	/usr/bin/unzip -qo ${INSTALLER_LIST[Oracle_RCU]} -d RCU_11118
+	/usr/bin/unzip -qo ${INSTALLER_LIST[Oracle_RCU]} -d RCU_11119
 fi
 
 # Create central inventory

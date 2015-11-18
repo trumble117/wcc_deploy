@@ -16,8 +16,8 @@
 echo "> Begin schema creation"
 
 if [[ $IS_SYSDBA == "Y" ]]; then
-	$STAGE_DIR/RCU_11118/rcuHome/bin/rcu -silent -createRepository -connectString $DB_URL -dbUser $DB_USER -dbRole sysdba -schemaPrefix $SCHEMA_PREFIX -component CONTENTSERVER11 -component URM -component CAPTURE -component MDS -component IPM -component SOAINFRA -component ORASDPM -f < $RESP_DIR/db_schema_passwords.txt
+	$STAGE_DIR/RCU_11119/rcuHome/bin/rcu -silent -createRepository -connectString $DB_URL -dbUser $DB_USER -dbRole sysdba -schemaPrefix $SCHEMA_PREFIX -component CONTENTSERVER11 -component URM -component CAPTURE -component MDS -component IPM -component SOAINFRA -component ORASDPM -f < $RESP_DIR/db_schema_passwords.txt
 else
-	$STAGE_DIR/RCU_11118/rcuHome/bin/rcu -silent -createRepository -connectString $DB_URL -dbUser $DB_USER -schemaPrefix $SCHEMA_PREFIX -component CONTENTSERVER11 -component URM -component CAPTURE -component MDS -component IPM -component SOAINFRA -component ORASDPM -f < $RESP_DIR/db_schema_passwords.txt
+	$STAGE_DIR/RCU_11119/rcuHome/bin/rcu -silent -createRepository -connectString $DB_URL -dbUser $DB_USER -schemaPrefix $SCHEMA_PREFIX -component CONTENTSERVER11 -component URM -component CAPTURE -component MDS -component IPM -component SOAINFRA -component ORASDPM -f < $RESP_DIR/db_schema_passwords.txt
 fi
 echo "> Schema creation complete"
