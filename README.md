@@ -21,23 +21,24 @@ The following base installation packages will need to be present in the {SCRIPT_
 
 | Product | Version | Archive Name |
 | ------- | ------- | ------------ |
-| WebCenter Content | 11.1.1.8 | ofm_wcc_generic_11.1.1.8.0_disk1_1of2.zip |
-|                   |          | ofm_wcc_generic_11.1.1.8.0_disk1_2of2.zip |
-| Oracle SOA Suite | 11.1.1.7 | ofm_soa_generic_11.1.1.7.0_disk1_1of2.zip |
-|            |          | ofm_soa_generic_11.1.1.7.0_disk1_2of2.zip |
+| WebCenter Content | 11.1.1.9 | ofm_wcc_generic_11.1.1.9.0_disk1_1of2.zip |
+|                   |          | ofm_wcc_generic_11.1.1.9.0_disk1_2of2.zip |
+| Oracle SOA Suite | 11.1.1.9 | ofm_soa_generic_11.1.1.9.0_disk1_1of2.zip |
+|            |          | ofm_soa_generic_11.1.1.9.0_disk1_2of2.zip |
 | Oracle WebTier | 11.1.1.9 | ofm_webtier_linux_11.1.1.9.0_64_disk1_1of1.zip |
-| Oracle RCU | 11.1.1.8 | ofm_rcu_linux_11.1.1.8.0_64_disk1_1of1.zip |
+| Oracle RCU | 11.1.1.8 | ofm_rcu_linux_11.1.1.9.0_64_disk1_1of1.zip |
 | Oracle WebLogic Server | 10.3.6 | wls1036_generic.jar |
-| Oracle JDK |	1.8.0 Update 60	|	jdk-8u60-linux-x64.rpm	|
+| Oracle JDK |	1.8.0 Update 60	|	jdk-7u80-linux-x64.rpm	|
 
 The following patches will need to be present in a PATCHES directory underneath the Middleware directory containing the binary installers.
 
 | Product | Archive Name | Release |
 | ------- | ------------ | ------------ |
-| WebCenter Content | p21631736_111190_Generic.zip | Bundle Patch 3 (September 2015) |
-| Oracle SOA Suite | p20900797_111170_Generic.zip | Bundle Patch 8 (July 2015) |
-| Oracle WebLogic Server | p20780171_1036_Generic.zip | EJUW (July 2015) |
-| Oracle OPatch | p6880880_111000_Linux-x86-64.zip | 11.1.0.12.7 (July 2015) |
+| WebCenter Content | p22449847_111190_Generic.zip | BP 160119 (January 2016) |
+| Oracle SOA Suite | p22469374_111190_Generic.zip | BP 160119 (January 2016) |
+| Oracle WebLogic Server | p21984589_1036_Generic.zip | S8C2 (January 2016) |
+| Oracle OPatch | p6880880_111000_Linux-x86-64.zip | 11.1.0.12.9 (October 2015) |
+| Oracle WebTier | p21663064_111190_Linux-x86-64.zip | CPU Oct 2015 |
 
 #### NOTE: The location of these files is very important. They must have the above names and be in the proper location, else deployment will fail and will not continue.
 
