@@ -60,13 +60,13 @@ BSU_DIR=$FMW_HOME/utils/bsu
 # Modify BSU.sh to prevent GC overhead limit errors
 sed -i 's/MEM_ARGS=.*/MEM_ARGS=\"-Xms256m -Xmx1024m -XX:-UseGCOverheadLimit\"/g' $BSU_DIR/bsu.sh
 [[ ! -d $BSU_DIR/cache_dir ]] && mkdir $BSU_DIR/cache_dir
-[[ ! -d $BSU_DIR/cache_dir/EJUW ]] && mkdir $BSU_DIR/cache_dir/EJUW
-unzip -qo $STAGE_DIR/PATCHES/${PATCH_LIST[Oracle_WebLogic_Server]} -d $BSU_DIR/cache_dir/EJUW
+[[ ! -d $BSU_DIR/cache_dir/$WLS_PATCH_ID ]] && mkdir $BSU_DIR/cache_dir/$WLS_PATCH_ID
+unzip -qo $STAGE_DIR/PATCHES/${PATCH_LIST[Oracle_WebLogic_Server]} -d $BSU_DIR/cache_dir/$WLS_PATCH_ID
 # Sometimes BSU will fail if the patch catalog name is left default
-cp $BSU_DIR/cache_dir/EJUW/patch-catalog_22958.xml $BSU_DIR/cache_dir/EJUW/patch-catalog.xml
+cp $BSU_DIR/cache_dir/$WLS_PATCH_ID/patch-catalog_*.xml $BSU_DIR/cache_dir/$WLS_PATCH_ID/patch-catalog.xml
 # BSU won't run unless you run it from it's own directory
 cd $BSU_DIR
-$BSU_DIR/bsu.sh -install -patch_download_dir=$BSU_DIR/cache_dir/EJUW -patchlist=EJUW -prod_dir=$ORACLE_HOME
+$BSU_DIR/bsu.sh -install -patch_download_dir=$BSU_DIR/cache_dir/$WLS_PATCH_ID -patchlist=$WLS_PATCH_ID -prod_dir=$ORACLE_HOME
 
 # Include xdo report library in UCM application deployment
 echo ">> Modifying CS application deployment to include XDO runtime"

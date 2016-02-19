@@ -7,6 +7,8 @@
 # Set up environment for auto-install/configure scripts
 # CHANGELOG
 # 10/14/2015 - Added check for user
+# 02/19/2016 - Added file consistency checks
+#			   Updated to January 2016 patches
 
 # Base variables
 FMW_HOME=/u01/app/oracle/product/fmw
@@ -19,7 +21,6 @@ MACHINE_LIST="wccapp2"
 # Contains extracted AUTO archive (scripts, responses, etc.) and software stage
 MEDIA_BASE=/tmp/fmwsetup
 ADMIN_PW=welcome1
-#UCM_HOST=wccapp2		--> Unneeded? JT 04/10/2015
 SOA_HOSTNAMES=wccapp2
 
 # Instance Variables
@@ -113,6 +114,8 @@ fi
 # Populate software package lists
 declare -A INSTALLER_LIST
 declare -A PATCH_LIST
+declare -A INSTALLER_SUMS
+declare -A PATCH_SUMS
 
 INSTALLER_LIST[WebCenter_Content_Disk1]="ofm_wcc_generic_11.1.1.9.0_disk1_1of2.zip"
 INSTALLER_LIST[WebCenter_Content_Disk2]="ofm_wcc_generic_11.1.1.9.0_disk1_2of2.zip"
@@ -123,15 +126,33 @@ INSTALLER_LIST[Oracle_RCU]="ofm_rcu_linux_11.1.1.9.0_64_disk1_1of1.zip"
 INSTALLER_LIST[Oracle_WebLogic_Server]="wls1036_generic.jar"
 INSTALLER_LIST[Java_JDK]="jdk-7u80-linux-x64.rpm"
 
-PATCH_LIST[WebCenter_Content]="p21833504_111190_Generic.zip"
-PATCH_LIST[Oracle_SOA_Suite]="p22036578_111190_Generic.zip"
-PATCH_LIST[Oracle_WebLogic_Server]="p20780171_1036_Generic.zip"
+# Required - Patch ID from README in WLS patch ZIP
+WLS_PATCH_ID=S8C2
+
+INSTALLER_SUMS[WebCenter_Content_Disk1]="116f614b6b920edfd1ff176af109a7be67b58634"
+INSTALLER_SUMS[WebCenter_Content_Disk2]="e35237c375ffe97d6f4488b9170719d8f565a5c0"
+INSTALLER_SUMS[Oracle_SOA_Suite_Disk1]="d9fb207815636847ab589926c85f7d0cc88a9dce"
+INSTALLER_SUMS[Oracle_SOA_Suite_Disk2]="a35488a0dd4144c9adefa98264afa3307dc403eb"
+INSTALLER_SUMS[Oracle_WebTier]="62442cfcea3d5e9730723ba364511849e6b07650"
+INSTALLER_SUMS[Oracle_RCU]="73f34f09d8939924ef6ed926204dda6dfcb5ebcf"
+INSTALLER_SUMS[Oracle_WebLogic_Server]="ffbc529d598ee4bcd1e8104191c22f1c237b4a3e"
+INSTALLER_SUMS[Java_JDK]="91fae940aa30069f518acf511c995afcd75c9314"
+
+PATCH_LIST[WebCenter_Content]="p22449847_111190_Generic.zip"
+PATCH_LIST[Oracle_SOA_Suite]="p22469374_111190_Generic.zip"
+PATCH_LIST[Oracle_WebLogic_Server]="p21984589_1036_Generic.zip"
 PATCH_LIST[Oracle_OPatch]="p6880880_111000_Linux-x86-64.zip"
 PATCH_LIST[Oracle_WebTier]="p21663064_111190_Linux-x86-64.zip"
 
+PATCH_SUMS[WebCenter_Content]="6d112d8815bcbd39ffdda8850e3b98397a2bf61f"
+PATCH_SUMS[Oracle_SOA_Suite]="f9d1bb07c33ac8c4b868ad5d99c597e6db346256"
+PATCH_SUMS[Oracle_WebLogic_Server]="7c8b37b9220bcb293acdb0a46384bc35cd8cefc2"
+PATCH_SUMS[Oracle_OPatch]="5f29007f3e4542ca7755ae9fa0942170b6ced170"
+PATCH_SUMS[Oracle_WebTier]="b0f810a780ab3abc754388766b3174932eb57fd2"
+
 FMWDA_RUN=false
 
-export INSTALLER_LIST PATCH_LIST
+export INSTALLER_LIST PATCH_LIST WLS_PATCH_ID
 
 echo "######################################"
 echo "# Scripting environment has been set #"
