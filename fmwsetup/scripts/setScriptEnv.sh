@@ -126,9 +126,6 @@ INSTALLER_LIST[Oracle_RCU]="ofm_rcu_linux_11.1.1.9.0_64_disk1_1of1.zip"
 INSTALLER_LIST[Oracle_WebLogic_Server]="wls1036_generic.jar"
 INSTALLER_LIST[Java_JDK]="jdk-7u80-linux-x64.rpm"
 
-# Required - Patch ID from README in WLS patch ZIP
-WLS_PATCH_ID=S8C2
-
 INSTALLER_SUMS[WebCenter_Content_Disk1]="116f614b6b920edfd1ff176af109a7be67b58634"
 INSTALLER_SUMS[WebCenter_Content_Disk2]="e35237c375ffe97d6f4488b9170719d8f565a5c0"
 INSTALLER_SUMS[Oracle_SOA_Suite_Disk1]="d9fb207815636847ab589926c85f7d0cc88a9dce"
@@ -143,6 +140,9 @@ PATCH_LIST[Oracle_SOA_Suite]="p22469374_111190_Generic.zip"
 PATCH_LIST[Oracle_WebLogic_Server]="p21984589_1036_Generic.zip"
 PATCH_LIST[Oracle_OPatch]="p6880880_111000_Linux-x86-64.zip"
 PATCH_LIST[Oracle_WebTier]="p21663064_111190_Linux-x86-64.zip"
+
+# Required - Patch ID from README in WLS patch ZIP
+WLS_PATCH_ID=S8C2
 
 PATCH_SUMS[WebCenter_Content]="6d112d8815bcbd39ffdda8850e3b98397a2bf61f"
 PATCH_SUMS[Oracle_SOA_Suite]="f9d1bb07c33ac8c4b868ad5d99c597e6db346256"
