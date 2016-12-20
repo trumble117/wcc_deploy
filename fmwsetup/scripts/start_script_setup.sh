@@ -29,12 +29,13 @@ nm_port = $NM_PORT
 log_dir = $LOG_DIR
 EOF
 	
-	[[ $(grep "WLS_DOMAIN" ~/.bash_profile) ]] && echo ">>> Deleting existing domain entry in profile" && sed -i '/WLS_DOMAIN/d' ~/.bash_profile
+	[[ $(grep "WLS_DOMAIN" ~/.bashrc) ]] && echo ">>> Deleting existing domain entry in profile" && sed -i '/WLS_DOMAIN/d' ~/.bashrc
 	echo ">> Setting environment variables and aliases"
-	cat << EOF >> ~/.bash_profile
+	cat << EOF >> ~/.bashrc
 WLS_DOMAIN=$DOMAIN_NAME_UPPER
 export WLS_DOMAIN
 EOF
+
 	# Make immediately available
 	export WLS_DOMAIN=$DOMAIN_NAME
 	
